@@ -65,19 +65,20 @@ export default function HomePage() {
           />
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 pb-16 lg:pt-32 lg:pb-24">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* Badge au-dessus du grid — les deux colonnes démarrent au même niveau */}
+            <div
+              className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full mb-8 font-medium"
+              style={{ background: 'rgba(91,140,107,0.12)', color: '#4A7559', border: '1px solid rgba(91,140,107,0.25)' }}
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              Bordeaux &amp; ses environs
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
               {/* ── Left : texte ── */}
               <div>
-                {/* Pill badge */}
-                <div
-                  className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full mb-8 font-medium"
-                  style={{ background: 'rgba(91,140,107,0.12)', color: '#4A7559', border: '1px solid rgba(91,140,107,0.25)' }}
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  Bordeaux &amp; ses environs
-                </div>
-
                 {/* Headline */}
                 <h1
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] mb-6 tracking-tight"
@@ -134,7 +135,7 @@ export default function HomePage() {
               </div>
 
               {/* ── Right : 3 arguments clés ── */}
-              <div className="hidden lg:flex flex-col justify-start gap-4" style={{ paddingTop: 'calc(2rem + 36px)' }}>
+              <div className="hidden lg:flex flex-col gap-4">
                 {[
                   {
                     icon: Smile,
