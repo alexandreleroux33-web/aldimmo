@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Reservation, ReservationStatut } from '@/lib/types'
+import { Reservation } from '@/lib/types'
 import Badge from '@/components/ui/Badge'
 
 const TABS: { label: string; value: string }[] = [
@@ -18,6 +18,12 @@ const PLATEFORME_LABELS: Record<string, string> = {
   airbnb: 'Airbnb',
   booking: 'Booking',
   direct: 'Direct',
+}
+
+const PLATEFORME_STYLE: Record<string, { color: string; bg: string; border: string }> = {
+  airbnb: { color: '#c0392b', bg: 'rgba(220,38,38,0.06)', border: 'rgba(220,38,38,0.15)' },
+  booking: { color: '#0369a1', bg: 'rgba(14,165,233,0.06)', border: 'rgba(14,165,233,0.15)' },
+  direct:  { color: '#3A5E46', bg: 'rgba(91,140,107,0.08)', border: 'rgba(91,140,107,0.2)' },
 }
 
 export default function ReservationsPage() {
@@ -56,24 +62,24 @@ export default function ReservationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Réservations</h1>
-        <p className="text-stone-400 mt-1">Toutes vos réservations en un coup d'œil</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#2D2926' }}>Réservations</h1>
+        <p className="mt-1" style={{ color: '#A89E98' }}>Toutes vos réservations en un coup d'œil</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-stone-800 p-1 rounded-xl border border-stone-700 flex-wrap">
+      <div className="flex gap-1 p-1 rounded-2xl flex-wrap" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
         {TABS.map(t => (
           <button
             key={t.value}
             onClick={() => setTab(t.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              tab === t.value
-                ? 'bg-emerald-600 text-white'
-                : 'text-stone-400 hover:text-white'
-            }`}
+            className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            style={tab === t.value
+              ? { background: '#5B8C6B', color: 'white' }
+              : { color: '#7A6E68' }
+            }
           >
             {t.label}
-            <span className="ml-1.5 text-xs opacity-70">
+            <span className="ml-1.5 text-xs opacity-60">
               ({t.value === 'all' ? reservations.length : reservations.filter(r => r.statut === t.value).length})
             </span>
           </button>
@@ -81,11 +87,11 @@ export default function ReservationsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-stone-800 rounded-xl border border-stone-700">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
         {loading ? (
-          <div className="p-12 text-center text-stone-500">Chargement...</div>
+          <div className="p-12 text-center" style={{ color: '#A89E98' }}>Chargement...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-stone-500">Aucune réservation trouvée</div>
+          <div className="p-12 text-center" style={{ color: '#A89E98' }}>Aucune réservation trouvée</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -106,25 +112,25 @@ export default function ReservationsPage() {
                   const debut = new Date(r.date_debut)
                   const fin = new Date(r.date_fin)
                   const nuits = Math.round((fin.getTime() - debut.getTime()) / 86400000)
+                  const plt = PLATEFORME_STYLE[r.plateforme] || PLATEFORME_STYLE.direct
                   return (
                     <tr key={r.id}>
                       <td>
-                        <div className="font-medium text-white">{r.locataire_nom}</div>
-                        {r.locataire_email && <div className="text-stone-500 text-xs">{r.locataire_email}</div>}
+                        <div className="font-medium" style={{ color: '#2D2926' }}>{r.locataire_nom}</div>
+                        {r.locataire_email && <div className="text-xs" style={{ color: '#A89E98' }}>{r.locataire_email}</div>}
                       </td>
                       <td>{(r as any).biens?.nom ?? '—'}</td>
                       <td>{debut.toLocaleDateString('fr-FR')}</td>
                       <td>{fin.toLocaleDateString('fr-FR')}</td>
                       <td>{nuits} nuit{nuits > 1 ? 's' : ''}</td>
-                      <td className="font-medium text-emerald-400">
+                      <td className="font-medium" style={{ color: '#3A5E46' }}>
                         {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                       </td>
                       <td>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          r.plateforme === 'airbnb' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
-                          r.plateforme === 'booking' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                          'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        }`}>
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          style={{ color: plt.color, background: plt.bg, border: `1px solid ${plt.border}` }}
+                        >
                           {PLATEFORME_LABELS[r.plateforme]}
                         </span>
                       </td>

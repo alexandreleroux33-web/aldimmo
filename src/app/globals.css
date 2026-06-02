@@ -9,21 +9,28 @@
   }
 
   body {
-    @apply antialiased bg-stone-50 text-stone-800;
+    @apply antialiased;
+    background: #FAF8F5;
+    color: #2D2926;
   }
 }
 
 @layer components {
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-700/60 transition-all duration-150 text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all;
+    color: #7A6E68;
   }
 
   .sidebar-link-active {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-emerald-700 text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium;
+    background: #5B8C6B;
+    color: white;
   }
 
   .stat-card {
-    @apply bg-white rounded-xl p-5 border border-stone-200 shadow-sm;
+    @apply rounded-2xl p-5 border;
+    background: white;
+    border-color: rgba(45,41,38,0.08);
   }
 
   .data-table {
@@ -31,19 +38,26 @@
   }
 
   .data-table thead tr {
-    @apply border-b border-stone-200;
+    border-bottom: 1px solid rgba(45,41,38,0.08);
   }
 
   .data-table thead th {
-    @apply text-left py-3 px-4 text-stone-500 font-medium text-xs uppercase tracking-wide;
+    @apply text-left py-3 px-4 font-medium text-xs uppercase tracking-wide;
+    color: #A89E98;
   }
 
   .data-table tbody tr {
-    @apply border-b border-stone-100 hover:bg-stone-50 transition-colors;
+    border-bottom: 1px solid rgba(45,41,38,0.05);
+    transition: background 0.15s;
+  }
+
+  .data-table tbody tr:hover {
+    background: rgba(91,140,107,0.04);
   }
 
   .data-table tbody td {
-    @apply py-3 px-4 text-stone-700;
+    @apply py-3 px-4;
+    color: #7A6E68;
   }
 }
 

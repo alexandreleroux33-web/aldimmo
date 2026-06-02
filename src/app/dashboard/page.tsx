@@ -77,7 +77,6 @@ export default function DashboardPage() {
     .filter(r => new Date(r.date_debut) > now && r.statut !== 'annule')
     .sort((a, b) => new Date(a.date_debut).getTime() - new Date(b.date_debut).getTime())[0]
 
-  // Chart: 6 last months
   const chartData = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1)
     const m = d.getMonth() + 1
@@ -96,24 +95,22 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-stone-400">Chargement...</div>
+        <div style={{ color: '#A89E98' }}>Chargement...</div>
       </div>
     )
   }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold" style={{ color: '#2D2926' }}>
           Bonjour {proprietaire ? `${proprietaire.prenom} ${proprietaire.nom}` : ''}
         </h1>
-        <p className="text-stone-400 mt-1">
+        <p className="mt-1" style={{ color: '#A89E98' }}>
           Voici un aperçu de votre activité pour {MOIS[currentMonth - 1]} {currentYear}
         </p>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           icon={Euro}
@@ -140,31 +137,31 @@ export default function DashboardPage() {
       </div>
 
       {/* Chart */}
-      <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
-        <h2 className="text-white font-semibold mb-6">Revenus des 6 derniers mois</h2>
+      <div className="rounded-2xl p-6" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
+        <h2 className="font-semibold mb-6" style={{ color: '#2D2926' }}>Revenus des 6 derniers mois</h2>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} barSize={32}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="mois" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} />
-            <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} tickFormatter={(v) => `${v}€`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,41,38,0.06)" />
+            <XAxis dataKey="mois" stroke="#C8B89A" tick={{ fill: '#A89E98', fontSize: 12 }} />
+            <YAxis stroke="#C8B89A" tick={{ fill: '#A89E98', fontSize: 12 }} tickFormatter={(v) => `${v}€`} />
             <Tooltip
-              contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
-              labelStyle={{ color: '#e2e8f0' }}
+              contentStyle={{ background: 'white', border: '1px solid rgba(45,41,38,0.1)', borderRadius: 8, boxShadow: '0 4px 12px rgba(45,41,38,0.08)' }}
+              labelStyle={{ color: '#2D2926', fontWeight: 600 }}
               formatter={(value: number) => [value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }), 'Revenus']}
             />
-            <Bar dataKey="revenus" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenus" fill="#5B8C6B" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Recent reservations */}
-      <div className="bg-stone-800 rounded-xl border border-stone-700">
-        <div className="px-6 py-4 border-b border-stone-700">
-          <h2 className="text-white font-semibold">Réservations récentes</h2>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
+        <div className="px-6 py-4" style={{ borderBottom: '1px solid rgba(45,41,38,0.08)' }}>
+          <h2 className="font-semibold" style={{ color: '#2D2926' }}>Réservations récentes</h2>
         </div>
         <div className="overflow-x-auto">
           {recent.length === 0 ? (
-            <div className="px-6 py-12 text-center text-stone-500">Aucune réservation</div>
+            <div className="px-6 py-12 text-center" style={{ color: '#A89E98' }}>Aucune réservation</div>
           ) : (
             <table className="data-table">
               <thead>
@@ -180,11 +177,13 @@ export default function DashboardPage() {
               <tbody>
                 {recent.map((r) => (
                   <tr key={r.id}>
-                    <td className="font-medium text-white">{r.locataire_nom}</td>
+                    <td className="font-medium" style={{ color: '#2D2926' }}>{r.locataire_nom}</td>
                     <td>{(r as any).biens?.nom ?? '—'}</td>
                     <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                     <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
-                    <td>{Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                    <td className="font-medium" style={{ color: '#3A5E46' }}>
+                      {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    </td>
                     <td><Badge statut={r.statut} /></td>
                   </tr>
                 ))}

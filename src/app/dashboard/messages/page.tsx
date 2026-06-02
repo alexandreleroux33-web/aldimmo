@@ -76,28 +76,31 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Messages</h1>
-        <p className="text-stone-400 mt-1">Échangez avec l'équipe ALD Immo</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#2D2926' }}>Messages</h1>
+        <p className="mt-1" style={{ color: '#A89E98' }}>Échangez avec l'équipe ALD Immo</p>
       </div>
 
-      <div className="bg-stone-800 rounded-xl border border-stone-700 flex flex-col" style={{ height: 'calc(100vh - 260px)', minHeight: 400 }}>
+      <div
+        className="rounded-2xl flex flex-col"
+        style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)', height: 'calc(100vh - 260px)', minHeight: 400 }}
+      >
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-stone-700">
-          <div className="w-9 h-9 bg-emerald-600/20 rounded-full flex items-center justify-center">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid rgba(45,41,38,0.08)' }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'rgba(91,140,107,0.1)' }}>
+            <MessageSquare className="w-4 h-4" style={{ color: '#5B8C6B' }} />
           </div>
           <div>
-            <div className="text-white font-medium">ALD Immo</div>
-            <div className="text-stone-400 text-xs">Équipe conciergerie</div>
+            <div className="font-medium" style={{ color: '#2D2926' }}>ALD Immo</div>
+            <div className="text-xs" style={{ color: '#A89E98' }}>Équipe conciergerie</div>
           </div>
         </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {loading ? (
-            <div className="text-center text-stone-500">Chargement...</div>
+            <div className="text-center" style={{ color: '#A89E98' }}>Chargement...</div>
           ) : messages.length === 0 ? (
-            <div className="text-center text-stone-500 pt-12">
+            <div className="text-center pt-12" style={{ color: '#A89E98' }}>
               <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Aucun message. Commencez la conversation !</p>
             </div>
@@ -108,17 +111,17 @@ export default function MessagesPage() {
                 className={`flex ${msg.expediteur === 'proprietaire' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.expediteur === 'proprietaire'
-                      ? 'bg-emerald-600 text-white rounded-br-sm'
-                      : 'bg-stone-700 text-stone-200 rounded-bl-sm'
-                  }`}
+                  className="max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-2xl text-sm leading-relaxed"
+                  style={msg.expediteur === 'proprietaire'
+                    ? { background: '#5B8C6B', color: 'white', borderBottomRightRadius: 4 }
+                    : { background: '#FAF8F5', color: '#2D2926', border: '1px solid rgba(45,41,38,0.08)', borderBottomLeftRadius: 4 }
+                  }
                 >
                   {msg.expediteur === 'ald' && (
-                    <div className="text-xs font-semibold text-emerald-400 mb-1">ALD Immo</div>
+                    <div className="text-xs font-semibold mb-1" style={{ color: '#5B8C6B' }}>ALD Immo</div>
                   )}
                   <p>{msg.contenu}</p>
-                  <div className={`text-xs mt-1.5 ${msg.expediteur === 'proprietaire' ? 'text-emerald-100' : 'text-stone-500'}`}>
+                  <div className="text-xs mt-1.5" style={{ color: msg.expediteur === 'proprietaire' ? 'rgba(255,255,255,0.6)' : '#A89E98' }}>
                     {new Date(msg.created_at).toLocaleDateString('fr-FR', {
                       day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                     })}
@@ -131,7 +134,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Input */}
-        <div className="px-6 py-4 border-t border-stone-700">
+        <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(45,41,38,0.08)' }}>
           <div className="flex gap-3">
             <textarea
               value={newMessage}
@@ -139,12 +142,21 @@ export default function MessagesPage() {
               onKeyDown={handleKeyDown}
               placeholder="Écrivez votre message... (Entrée pour envoyer)"
               rows={2}
-              className="flex-1 bg-stone-700 border border-stone-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm"
+              className="flex-1 rounded-xl px-4 py-3 resize-none text-sm focus:outline-none"
+              style={{
+                background: '#FAF8F5',
+                border: '1px solid rgba(45,41,38,0.12)',
+                color: '#2D2926',
+              }}
             />
             <button
               onClick={handleSend}
               disabled={sending || !newMessage.trim()}
-              className="bg-emerald-600 hover:bg-emerald-400 disabled:bg-stone-600 disabled:text-stone-400 text-white px-4 rounded-xl transition-colors flex items-center"
+              className="px-4 rounded-xl transition-colors flex items-center"
+              style={{
+                background: sending || !newMessage.trim() ? 'rgba(45,41,38,0.06)' : '#5B8C6B',
+                color: sending || !newMessage.trim() ? '#A89E98' : 'white',
+              }}
             >
               <Send className="w-4 h-4" />
             </button>

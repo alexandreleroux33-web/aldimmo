@@ -18,10 +18,10 @@ const TYPE_ICON: Record<DocumentType, React.ElementType> = {
   facture: Receipt,
 }
 
-const TYPE_COLOR: Record<DocumentType, string> = {
-  bilan: 'text-emerald-400 bg-emerald-400/10',
-  contrat: 'text-emerald-400 bg-emerald-400/10',
-  facture: 'text-violet-400 bg-violet-400/10',
+const TYPE_STYLE: Record<DocumentType, { color: string; bg: string; border: string }> = {
+  bilan:   { color: '#3A5E46', bg: 'rgba(91,140,107,0.1)',  border: 'rgba(91,140,107,0.25)' },
+  contrat: { color: '#0369a1', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.2)' },
+  facture: { color: '#7c3aed', bg: 'rgba(124,58,237,0.08)', border: 'rgba(124,58,237,0.2)' },
 }
 
 const TYPE_LABEL: Record<DocumentType, string> = {
@@ -68,22 +68,24 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Documents</h1>
-        <p className="text-stone-400 mt-1">Vos bilans, contrats et factures</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#2D2926' }}>Documents</h1>
+        <p className="mt-1" style={{ color: '#A89E98' }}>Vos bilans, contrats et factures</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-stone-800 p-1 rounded-xl border border-stone-700 flex-wrap">
+      <div className="flex gap-1 p-1 rounded-2xl flex-wrap" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
         {TYPE_TABS.map(t => (
           <button
             key={t.value}
             onClick={() => setFilter(t.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === t.value ? 'bg-emerald-600 text-white' : 'text-stone-400 hover:text-white'
-            }`}
+            className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            style={filter === t.value
+              ? { background: '#5B8C6B', color: 'white' }
+              : { color: '#7A6E68' }
+            }
           >
             {t.label}
-            <span className="ml-1.5 text-xs opacity-70">
+            <span className="ml-1.5 text-xs opacity-60">
               ({t.value === 'all' ? documents.length : documents.filter(d => d.type === t.value).length})
             </span>
           </button>
@@ -91,11 +93,11 @@ export default function DocumentsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-stone-800 rounded-xl border border-stone-700">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
         {loading ? (
-          <div className="p-12 text-center text-stone-500">Chargement...</div>
+          <div className="p-12 text-center" style={{ color: '#A89E98' }}>Chargement...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-stone-500">
+          <div className="p-12 text-center" style={{ color: '#A89E98' }}>
             <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Aucun document</p>
           </div>
@@ -115,22 +117,22 @@ export default function DocumentsPage() {
               <tbody>
                 {filtered.map(doc => {
                   const Icon = TYPE_ICON[doc.type] || FileText
+                  const s = TYPE_STYLE[doc.type]
                   return (
                     <tr key={doc.id}>
                       <td>
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${TYPE_COLOR[doc.type]}`}>
-                            <Icon className="w-4 h-4" />
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: s.bg }}>
+                            <Icon className="w-4 h-4" style={{ color: s.color }} />
                           </div>
-                          <span className="font-medium text-white">{doc.nom}</span>
+                          <span className="font-medium" style={{ color: '#2D2926' }}>{doc.nom}</span>
                         </div>
                       </td>
                       <td>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          doc.type === 'bilan' ? 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20' :
-                          doc.type === 'contrat' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                          'bg-violet-500/10 text-violet-400 border-violet-500/20'
-                        }`}>
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
+                        >
                           {TYPE_LABEL[doc.type]}
                         </span>
                       </td>
@@ -146,7 +148,10 @@ export default function DocumentsPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-700 hover:bg-stone-600 text-stone-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                          style={{ background: 'rgba(91,140,107,0.08)', color: '#3A5E46', border: '1px solid rgba(91,140,107,0.15)' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(91,140,107,0.15)' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,140,107,0.08)' }}
                         >
                           <Download className="w-3.5 h-3.5" />
                           Télécharger
