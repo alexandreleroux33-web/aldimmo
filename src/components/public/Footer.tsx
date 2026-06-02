@@ -57,7 +57,8 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} ALD Immo. Tous droits réservés.</p>
           <div className="flex gap-6">
             <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link>
-            <Link href="/politique-confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
+            <Link href="/politique-de-confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
+            <Link href="/cgv" className="hover:text-white transition-colors">CGV</Link>
           </div>
         </div>
       </div>
