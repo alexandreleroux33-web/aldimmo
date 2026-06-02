@@ -133,137 +133,42 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* ── Right : composition décorative + arguments ── */}
-              <div className="hidden lg:flex flex-col gap-6">
-                {/* Carte principale + flottants */}
-                <div className="relative">
-                <div
-                  className="relative rounded-3xl overflow-hidden shadow-2xl"
-                  style={{ background: 'linear-gradient(145deg, #EDE3D0 0%, #DFC48A 50%, #C8A96E 100%)', aspectRatio: '4/5' }}
-                >
-                  {/* Overlay texture sable/eau */}
+              {/* ── Right : 3 arguments clés ── */}
+              <div className="hidden lg:flex flex-col justify-center gap-4">
+                {[
+                  {
+                    icon: Smile,
+                    title: 'Louez l\'esprit tranquille',
+                    desc: 'Nous gérons tout à votre place — réservations, accueil, ménage, maintenance.',
+                  },
+                  {
+                    icon: BarChart2,
+                    title: 'Revenus optimisés',
+                    desc: 'Tarification intelligente selon la saison, la demande et les événements locaux.',
+                  },
+                  {
+                    icon: FileText,
+                    title: 'Transparence totale',
+                    desc: 'Bilan mensuel détaillé disponible à tout moment dans votre espace propriétaire.',
+                  },
+                ].map(({ icon: Icon, title, desc }) => (
                   <div
-                    className="absolute inset-0"
-                    style={{ background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35) 0%, transparent 50%), radial-gradient(ellipse at 75% 80%, rgba(91,140,107,0.2) 0%, transparent 45%)' }}
-                  />
-
-                  {/* Formes abstraites évocatrices */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-2/5"
-                    style={{ background: 'linear-gradient(to top, rgba(91,140,107,0.3), transparent)' }}
-                  />
-                  {/* Cercle soleil/lune */}
-                  <div
-                    className="absolute top-12 right-12 w-28 h-28 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.25)', boxShadow: 'inset 0 0 40px rgba(255,200,80,0.3)' }}
-                  />
-                  {/* Lignes horizon */}
-                  {[35, 42, 49].map((top) => (
-                    <div
-                      key={top}
-                      className="absolute left-8 right-8 h-px"
-                      style={{ top: `${top}%`, background: 'rgba(255,255,255,0.2)' }}
-                    />
-                  ))}
-                  {/* Vague basse */}
-                  <svg
-                    className="absolute bottom-0 left-0 right-0 w-full"
-                    viewBox="0 0 400 80"
-                    preserveAspectRatio="none"
+                    key={title}
+                    className="flex items-start gap-4 rounded-2xl px-6 py-5 transition-all hover:shadow-md hover:-translate-y-0.5"
+                    style={{ background: 'rgba(250,248,245,0.88)', border: '1px solid rgba(45,41,38,0.09)', backdropFilter: 'blur(6px)' }}
                   >
-                    <path
-                      d="M0,40 C80,10 160,70 240,40 C320,10 360,50 400,35 L400,80 L0,80 Z"
-                      fill="rgba(91,140,107,0.25)"
-                    />
-                    <path
-                      d="M0,55 C60,30 140,75 220,50 C300,25 360,60 400,45 L400,80 L0,80 Z"
-                      fill="rgba(91,140,107,0.15)"
-                    />
-                  </svg>
-                </div>
-
-                {/* Carte flottante : bilan mensuel */}
-                <div
-                  className="absolute -left-10 top-12 rounded-2xl p-5 shadow-xl w-52"
-                  style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.08)' }}
-                >
-                  <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#A89E98' }}>Bilan juin</div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: '#2D2926' }}>2 840 €</div>
-                  <div className="text-xs mb-3" style={{ color: '#7A6E68' }}>Revenus nets versés</div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full" style={{ background: '#5B8C6B' }} />
-                    <span className="text-xs" style={{ color: '#5B8C6B' }}>+12% vs mai</span>
-                  </div>
-                </div>
-
-                {/* Carte flottante : prochain séjour */}
-                <div
-                  className="absolute -right-8 bottom-16 rounded-2xl p-5 shadow-xl w-48"
-                  style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.08)' }}
-                >
-                  <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#A89E98' }}>Prochain séjour</div>
-                  <div className="text-sm font-bold mb-1" style={{ color: '#2D2926' }}>Famille Martin</div>
-                  <div className="text-xs" style={{ color: '#7A6E68' }}>Check-in 14 juil.</div>
-                  <div
-                    className="mt-3 text-xs px-2 py-1 rounded-full inline-block font-medium"
-                    style={{ background: 'rgba(91,140,107,0.12)', color: '#4A7559' }}
-                  >
-                    Confirmé ✓
-                  </div>
-                </div>
-
-                {/* Étoiles flottantes */}
-                <div
-                  className="absolute top-1/2 -right-6 -translate-y-1/2 rounded-2xl p-4 shadow-lg"
-                  style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.08)' }}
-                >
-                  <div className="flex gap-0.5 mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" style={{ color: '#DFC48A' }} />
-                    ))}
-                  </div>
-                  <div className="text-xs font-semibold" style={{ color: '#2D2926' }}>5 / 5</div>
-                  <div className="text-xs" style={{ color: '#A89E98' }}>Avis locataires</div>
-                </div>
-                </div>{/* fin wrapper relative carte */}
-
-                {/* ── 3 arguments clés ── */}
-                <div className="flex flex-col gap-3">
-                  {[
-                    {
-                      icon: Smile,
-                      title: 'Louez l\'esprit tranquille',
-                      desc: 'Nous gérons tout à votre place — réservations, accueil, ménage, maintenance.',
-                    },
-                    {
-                      icon: BarChart2,
-                      title: 'Revenus optimisés',
-                      desc: 'Tarification intelligente selon la saison, la demande et les événements locaux.',
-                    },
-                    {
-                      icon: FileText,
-                      title: 'Transparence totale',
-                      desc: 'Bilan mensuel détaillé disponible à tout moment dans votre espace propriétaire.',
-                    },
-                  ].map(({ icon: Icon, title, desc }) => (
                     <div
-                      key={title}
-                      className="flex items-start gap-4 rounded-2xl px-5 py-4 transition-all hover:shadow-sm"
-                      style={{ background: 'rgba(250,248,245,0.85)', border: '1px solid rgba(45,41,38,0.08)' }}
+                      className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center mt-0.5"
+                      style={{ background: 'rgba(91,140,107,0.13)' }}
                     >
-                      <div
-                        className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5"
-                        style={{ background: 'rgba(91,140,107,0.12)' }}
-                      >
-                        <Icon className="w-4.5 h-4.5" style={{ color: '#5B8C6B', width: 18, height: 18 }} />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold mb-0.5" style={{ color: '#2D2926' }}>{title}</div>
-                        <div className="text-xs leading-relaxed" style={{ color: '#7A6E68' }}>{desc}</div>
-                      </div>
+                      <Icon style={{ color: '#5B8C6B', width: 20, height: 20 }} />
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <div className="text-base font-bold mb-1" style={{ color: '#2D2926' }}>{title}</div>
+                      <div className="text-sm leading-relaxed" style={{ color: '#7A6E68' }}>{desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>{/* fin colonne droite */}
 
             </div>
