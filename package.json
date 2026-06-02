@@ -18,7 +18,6 @@
     "next": "^16.2.7",
     "react": "^18",
     "react-dom": "^18",
-    "react-leaflet": "^5.0.0",
     "recharts": "^2.12.7"
   },
   "devDependencies": {
