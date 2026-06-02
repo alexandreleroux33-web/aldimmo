@@ -73,7 +73,7 @@ export default function AdminPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Dashboard Admin</h1>
-        <p className="text-slate-400 mt-1">Vue globale de l'activité ALD Immo</p>
+        <p className="text-stone-400 mt-1">Vue globale de l'activité ALD Immo</p>
       </div>
 
       {/* KPIs */}
@@ -95,7 +95,7 @@ export default function AdminPage() {
       </div>
 
       {/* Chart */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+      <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
         <h2 className="text-white font-semibold mb-6">Revenus par mois (toutes propriétés)</h2>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={chartData} barSize={24}>
@@ -113,12 +113,12 @@ export default function AdminPage() {
       </div>
 
       {/* Top biens */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
-        <div className="px-6 py-4 border-b border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
+        <div className="px-6 py-4 border-b border-stone-700">
           <h2 className="text-white font-semibold">Top 5 propriétés par revenus</h2>
         </div>
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -136,12 +136,12 @@ export default function AdminPage() {
               <tbody>
                 {bienStats.map((b, i) => (
                   <tr key={b.id}>
-                    <td className="text-slate-500 font-bold">{i + 1}</td>
+                    <td className="text-stone-500 font-bold">{i + 1}</td>
                     <td className="font-medium text-white">{b.nom}</td>
                     <td>{(b as any).proprietaires ? `${(b as any).proprietaires.prenom} ${(b as any).proprietaires.nom}` : '—'}</td>
                     <td className="capitalize">{b.type}</td>
                     <td>{b.nbRes}</td>
-                    <td className="text-sky-400 font-medium">
+                    <td className="text-emerald-400 font-medium">
                       {b.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
                     <td className="text-emerald-400">

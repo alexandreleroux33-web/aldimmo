@@ -78,18 +78,18 @@ export default function AdminBiensPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Biens</h1>
-          <p className="text-slate-400 mt-1">{biens.length} bien{biens.length !== 1 ? 's' : ''} enregistré{biens.length !== 1 ? 's' : ''}</p>
+          <p className="text-stone-400 mt-1">{biens.length} bien{biens.length !== 1 ? 's' : ''} enregistré{biens.length !== 1 ? 's' : ''}</p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="w-4 h-4" /> Ajouter un bien
         </Button>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : biens.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
+          <div className="p-12 text-center text-stone-500">
             <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Aucun bien</p>
           </div>
@@ -111,19 +111,19 @@ export default function AdminBiensPage() {
                   <tr key={b.id}>
                     <td>
                       <div className="font-medium text-white">{b.nom}</div>
-                      <div className="text-slate-500 text-xs">{b.adresse}</div>
+                      <div className="text-stone-500 text-xs">{b.adresse}</div>
                     </td>
                     <td>{(b as any).proprietaires ? `${(b as any).proprietaires.prenom} ${(b as any).proprietaires.nom}` : '—'}</td>
                     <td className="capitalize">{b.type}</td>
                     <td>{b.chambres} ch. · {b.capacite} pers.</td>
-                    <td className="font-medium text-sky-400">
+                    <td className="font-medium text-emerald-400">
                       {Number(b.prix_nuit).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
                     <td>
                       <button
                         onClick={() => toggleStatut(b)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                          b.statut === 'actif' ? 'bg-sky-500' : 'bg-slate-600'
+                          b.statut === 'actif' ? 'bg-emerald-600' : 'bg-stone-600'
                         }`}
                       >
                         <span
@@ -132,7 +132,7 @@ export default function AdminBiensPage() {
                           }`}
                         />
                       </button>
-                      <span className={`ml-2 text-xs ${b.statut === 'actif' ? 'text-sky-400' : 'text-slate-500'}`}>
+                      <span className={`ml-2 text-xs ${b.statut === 'actif' ? 'text-emerald-400' : 'text-stone-500'}`}>
                         {b.statut === 'actif' ? 'Actif' : 'Inactif'}
                       </span>
                     </td>
@@ -147,9 +147,9 @@ export default function AdminBiensPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Ajouter un bien">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Propriétaire *</label>
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Propriétaire *</label>
             <select name="proprietaire_id" value={form.proprietaire_id} onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
               <option value="">Sélectionner...</option>
               {proprietaires.map(p => (
                 <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>
@@ -157,42 +157,42 @@ export default function AdminBiensPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Nom du bien *</label>
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Nom du bien *</label>
             <input name="nom" value={form.nom} onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
               placeholder="Villa Les Pins" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Adresse *</label>
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Adresse *</label>
             <input name="adresse" value={form.adresse} onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
               placeholder="12 rue des Pins, Gujan-Mestras" />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Type</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Type</label>
               <select name="type" value={form.type} onChange={handleChange}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
                 <option value="appartement">Appartement</option>
                 <option value="villa">Villa</option>
                 <option value="maison">Maison</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Chambres</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Chambres</label>
               <input type="number" name="chambres" value={form.chambres} onChange={handleChange} min={1}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Capacité</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Capacité</label>
               <input type="number" name="capacite" value={form.capacite} onChange={handleChange} min={1}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Prix par nuit (€)</label>
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Prix par nuit (€)</label>
             <input type="number" name="prix_nuit" value={form.prix_nuit} onChange={handleChange} min={0} step={0.01}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
           </div>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <div className="flex gap-3 pt-2">

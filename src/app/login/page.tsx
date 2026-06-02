@@ -38,53 +38,51 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center">
-              <Home className="w-5 h-5 text-sky-400" />
+            <div className="w-10 h-10 bg-emerald-700 rounded-xl flex items-center justify-center">
+              <Home className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-white text-2xl">ALD Immo</span>
+            <span className="font-bold text-stone-900 text-2xl">ALD Immo</span>
           </Link>
-          <p className="text-slate-400 mt-2 text-sm">Espace propriétaire</p>
+          <p className="text-stone-500 mt-2 text-sm">Espace propriétaire</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8">
-          <h1 className="text-2xl font-bold text-white mb-1">Connexion</h1>
-          <p className="text-slate-400 text-sm mb-8">Accédez à votre espace propriétaire</p>
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8">
+          <h1 className="text-2xl font-bold text-stone-900 mb-1">Connexion</h1>
+          <p className="text-stone-500 text-sm mb-8">Accédez à votre espace propriétaire</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Email</label>
               <input
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="jean@email.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Mot de passe</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Mot de passe</label>
               <input
                 type="password"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
                 {error}
               </div>
             )}
@@ -92,16 +90,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sky-500 hover:bg-sky-400 disabled:bg-sky-800 disabled:text-sky-600 text-white font-semibold py-3 rounded-xl transition-colors"
+              className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-stone-200 disabled:text-stone-400 text-white font-semibold py-3 rounded-xl transition-colors"
             >
               {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-slate-400 text-sm">
+            <p className="text-stone-500 text-sm">
               Pas encore de compte ?{' '}
-              <Link href="/register" className="text-sky-400 hover:text-sky-300 font-medium transition-colors">
+              <Link href="/register" className="text-emerald-700 hover:text-emerald-800 font-medium transition-colors">
                 Créer un compte
               </Link>
             </p>
@@ -109,7 +107,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center mt-6">
-          <Link href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">
+          <Link href="/" className="text-stone-400 hover:text-stone-600 text-sm transition-colors">
             ← Retour au site
           </Link>
         </div>

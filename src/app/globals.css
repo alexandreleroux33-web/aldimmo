@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #0f172a;
+    --background: #faf9f7;
+    --foreground: #292524;
   }
 
   body {
-    @apply antialiased;
+    @apply antialiased bg-stone-50 text-stone-800;
   }
 }
 
 @layer components {
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-all duration-150 text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-700/60 transition-all duration-150 text-sm font-medium;
   }
 
   .sidebar-link-active {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-sky-600 text-sm font-medium;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-emerald-700 text-sm font-medium;
   }
 
   .stat-card {
-    @apply bg-slate-800 rounded-xl p-5 border border-slate-700;
+    @apply bg-white rounded-xl p-5 border border-stone-200 shadow-sm;
   }
 
   .data-table {
@@ -31,19 +31,19 @@
   }
 
   .data-table thead tr {
-    @apply border-b border-slate-700;
+    @apply border-b border-stone-200;
   }
 
   .data-table thead th {
-    @apply text-left py-3 px-4 text-slate-400 font-medium text-xs uppercase tracking-wide;
+    @apply text-left py-3 px-4 text-stone-500 font-medium text-xs uppercase tracking-wide;
   }
 
   .data-table tbody tr {
-    @apply border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors;
+    @apply border-b border-stone-100 hover:bg-stone-50 transition-colors;
   }
 
   .data-table tbody td {
-    @apply py-3 px-4 text-slate-300;
+    @apply py-3 px-4 text-stone-700;
   }
 }
 

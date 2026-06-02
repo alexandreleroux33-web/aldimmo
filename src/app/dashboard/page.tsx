@@ -96,7 +96,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-400">Chargement...</div>
+        <div className="text-stone-400">Chargement...</div>
       </div>
     )
   }
@@ -108,7 +108,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-white">
           Bonjour {proprietaire ? `${proprietaire.prenom} ${proprietaire.nom}` : ''}
         </h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-stone-400 mt-1">
           Voici un aperçu de votre activité pour {MOIS[currentMonth - 1]} {currentYear}
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Chart */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+      <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
         <h2 className="text-white font-semibold mb-6">Revenus des 6 derniers mois</h2>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData} barSize={32}>
@@ -158,13 +158,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent reservations */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
-        <div className="px-6 py-4 border-b border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
+        <div className="px-6 py-4 border-b border-stone-700">
           <h2 className="text-white font-semibold">Réservations récentes</h2>
         </div>
         <div className="overflow-x-auto">
           {recent.length === 0 ? (
-            <div className="px-6 py-12 text-center text-slate-500">Aucune réservation</div>
+            <div className="px-6 py-12 text-center text-stone-500">Aucune réservation</div>
           ) : (
             <table className="data-table">
               <thead>

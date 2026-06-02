@@ -57,19 +57,19 @@ export default function ReservationsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Réservations</h1>
-        <p className="text-slate-400 mt-1">Toutes vos réservations en un coup d'œil</p>
+        <p className="text-stone-400 mt-1">Toutes vos réservations en un coup d'œil</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 flex-wrap">
+      <div className="flex gap-1 bg-stone-800 p-1 rounded-xl border border-stone-700 flex-wrap">
         {TABS.map(t => (
           <button
             key={t.value}
             onClick={() => setTab(t.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               tab === t.value
-                ? 'bg-sky-500 text-white'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-emerald-600 text-white'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
             {t.label}
@@ -81,11 +81,11 @@ export default function ReservationsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">Aucune réservation trouvée</div>
+          <div className="p-12 text-center text-stone-500">Aucune réservation trouvée</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -110,13 +110,13 @@ export default function ReservationsPage() {
                     <tr key={r.id}>
                       <td>
                         <div className="font-medium text-white">{r.locataire_nom}</div>
-                        {r.locataire_email && <div className="text-slate-500 text-xs">{r.locataire_email}</div>}
+                        {r.locataire_email && <div className="text-stone-500 text-xs">{r.locataire_email}</div>}
                       </td>
                       <td>{(r as any).biens?.nom ?? '—'}</td>
                       <td>{debut.toLocaleDateString('fr-FR')}</td>
                       <td>{fin.toLocaleDateString('fr-FR')}</td>
                       <td>{nuits} nuit{nuits > 1 ? 's' : ''}</td>
-                      <td className="font-medium text-sky-400">
+                      <td className="font-medium text-emerald-400">
                         {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                       </td>
                       <td>

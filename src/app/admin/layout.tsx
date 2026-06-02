@@ -45,13 +45,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const Sidebar = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-2 px-5 py-5 border-b border-slate-700/50">
-        <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
-          <Home className="w-4 h-4 text-sky-400" />
+      <div className="flex items-center gap-2 px-5 py-5 border-b border-stone-700/50">
+        <div className="w-8 h-8 bg-stone-700 rounded-lg flex items-center justify-center">
+          <Home className="w-4 h-4 text-emerald-400" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-white text-base leading-tight">ALD Immo</div>
-          <div className="text-slate-500 text-xs">Back-office</div>
+          <div className="text-stone-500 text-xs">Back-office</div>
         </div>
         <span className="flex-shrink-0 bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-1.5 py-0.5 rounded">
           ADMIN
@@ -76,10 +76,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
 
       {/* Logout */}
-      <div className="px-3 py-4 border-t border-slate-700/50">
+      <div className="px-3 py-4 border-t border-stone-700/50">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all text-sm font-medium"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-400/10 transition-all text-sm font-medium"
         >
           <LogOut className="w-4 h-4" />
           Déconnexion
@@ -89,9 +89,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   )
 
   return (
-    <div className="min-h-screen bg-slate-900 flex">
+    <div className="min-h-screen bg-stone-900 flex">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 bg-slate-900 border-r border-slate-700/50 fixed h-full z-30">
+      <aside className="hidden lg:flex flex-col w-60 bg-stone-900 border-r border-stone-700/50 fixed h-full z-30">
         <Sidebar />
       </aside>
 
@@ -101,12 +101,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
       <aside
         className={clsx(
-          'lg:hidden fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-700/50 z-50 transform transition-transform duration-200',
+          'lg:hidden fixed left-0 top-0 h-full w-64 bg-stone-900 border-r border-stone-700/50 z-50 transform transition-transform duration-200',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="absolute top-4 right-4">
-          <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white">
+          <button onClick={() => setSidebarOpen(false)} className="text-stone-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -114,9 +114,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-slate-900 border-b border-slate-700/50 sticky top-0 z-20">
-          <button onClick={() => setSidebarOpen(true)} className="text-slate-400 hover:text-white">
+      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen bg-stone-50">
+        <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-stone-900 border-b border-stone-700/50 sticky top-0 z-20">
+          <button onClick={() => setSidebarOpen(true)} className="text-stone-400 hover:text-white">
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-white font-semibold">Admin ALD Immo</span>

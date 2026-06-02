@@ -15,49 +15,45 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <Home className="w-4 h-4 text-sky-400" />
+            <div className="w-8 h-8 bg-emerald-700 rounded-lg flex items-center justify-center">
+              <Home className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-xl">ALD Immo</span>
+            <span className="font-bold text-stone-900 text-xl">ALD Immo</span>
           </Link>
 
-          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+                className="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/login"
-              className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+              className="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors"
             >
               Connexion
             </Link>
             <Link
               href="/login"
-              className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors"
+              className="bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-800 transition-colors"
             >
               Espace propriétaire
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-gray-100"
+            className="md:hidden p-2 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -65,23 +61,22 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-2">
+        <div className="md:hidden bg-white border-t border-stone-100 px-4 py-4 space-y-2">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="block py-2 text-slate-600 hover:text-slate-900 text-sm font-medium"
+              className="block py-2 text-stone-600 hover:text-stone-900 text-sm font-medium"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
             </Link>
           ))}
-          <div className="pt-2 border-t border-gray-100">
+          <div className="pt-2 border-t border-stone-100">
             <Link
               href="/login"
-              className="block w-full text-center bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors mt-2"
+              className="block w-full text-center bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-800 transition-colors mt-2"
               onClick={() => setIsOpen(false)}
             >
               Espace propriétaire

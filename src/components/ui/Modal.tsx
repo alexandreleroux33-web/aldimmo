@@ -35,13 +35,13 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         onClick={onClose}
       />
       {/* Modal */}
-      <div className="relative z-10 bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="relative z-10 bg-stone-800 border border-stone-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-stone-700">
           {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
           <button
             onClick={onClose}
-            className="ml-auto text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-700"
+            className="ml-auto text-stone-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-stone-700"
           >
             <X className="w-5 h-5" />
           </button>

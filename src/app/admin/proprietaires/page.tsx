@@ -68,18 +68,18 @@ export default function AdminProprietairesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Propriétaires</h1>
-          <p className="text-slate-400 mt-1">{proprietaires.length} propriétaire{proprietaires.length !== 1 ? 's' : ''} enregistré{proprietaires.length !== 1 ? 's' : ''}</p>
+          <p className="text-stone-400 mt-1">{proprietaires.length} propriétaire{proprietaires.length !== 1 ? 's' : ''} enregistré{proprietaires.length !== 1 ? 's' : ''}</p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="w-4 h-4" /> Ajouter
         </Button>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : proprietaires.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
+          <div className="p-12 text-center text-stone-500">
             <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Aucun propriétaire</p>
           </div>
@@ -103,7 +103,7 @@ export default function AdminProprietairesPage() {
                     <td>{p.email}</td>
                     <td>{p.telephone || '—'}</td>
                     <td>{p.nb_biens}</td>
-                    <td className="text-sky-400 font-medium">
+                    <td className="text-emerald-400 font-medium">
                       {(p.revenus ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
                     <td>{new Date(p.created_at).toLocaleDateString('fr-FR')}</td>
@@ -119,25 +119,25 @@ export default function AdminProprietairesPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Prénom *</label>
-              <input name="prenom" value={form.prenom} onChange={handleChange} className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Jean" />
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Prénom *</label>
+              <input name="prenom" value={form.prenom} onChange={handleChange} className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" placeholder="Jean" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Nom *</label>
-              <input name="nom" value={form.nom} onChange={handleChange} className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Dupont" />
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Nom *</label>
+              <input name="nom" value={form.nom} onChange={handleChange} className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" placeholder="Dupont" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Email *</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="jean@email.com" />
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Email *</label>
+            <input type="email" name="email" value={form.email} onChange={handleChange} className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" placeholder="jean@email.com" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Téléphone</label>
-            <input name="telephone" value={form.telephone} onChange={handleChange} className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="06 12 34 56 78" />
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Téléphone</label>
+            <input name="telephone" value={form.telephone} onChange={handleChange} className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" placeholder="06 12 34 56 78" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Adresse</label>
-            <input name="adresse" value={form.adresse} onChange={handleChange} className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="12 rue des Pins, Gujan-Mestras" />
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Adresse</label>
+            <input name="adresse" value={form.adresse} onChange={handleChange} className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" placeholder="12 rue des Pins, Gujan-Mestras" />
           </div>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <div className="flex gap-3 pt-2">

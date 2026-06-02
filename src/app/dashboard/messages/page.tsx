@@ -77,27 +77,27 @@ export default function MessagesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Messages</h1>
-        <p className="text-slate-400 mt-1">Échangez avec l'équipe ALD Immo</p>
+        <p className="text-stone-400 mt-1">Échangez avec l'équipe ALD Immo</p>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 flex flex-col" style={{ height: 'calc(100vh - 260px)', minHeight: 400 }}>
+      <div className="bg-stone-800 rounded-xl border border-stone-700 flex flex-col" style={{ height: 'calc(100vh - 260px)', minHeight: 400 }}>
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-700">
-          <div className="w-9 h-9 bg-sky-500/20 rounded-full flex items-center justify-center">
-            <MessageSquare className="w-4 h-4 text-sky-400" />
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-stone-700">
+          <div className="w-9 h-9 bg-emerald-600/20 rounded-full flex items-center justify-center">
+            <MessageSquare className="w-4 h-4 text-emerald-400" />
           </div>
           <div>
             <div className="text-white font-medium">ALD Immo</div>
-            <div className="text-slate-400 text-xs">Équipe conciergerie</div>
+            <div className="text-stone-400 text-xs">Équipe conciergerie</div>
           </div>
         </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {loading ? (
-            <div className="text-center text-slate-500">Chargement...</div>
+            <div className="text-center text-stone-500">Chargement...</div>
           ) : messages.length === 0 ? (
-            <div className="text-center text-slate-500 pt-12">
+            <div className="text-center text-stone-500 pt-12">
               <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Aucun message. Commencez la conversation !</p>
             </div>
@@ -110,15 +110,15 @@ export default function MessagesPage() {
                 <div
                   className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                     msg.expediteur === 'proprietaire'
-                      ? 'bg-sky-500 text-white rounded-br-sm'
-                      : 'bg-slate-700 text-slate-200 rounded-bl-sm'
+                      ? 'bg-emerald-600 text-white rounded-br-sm'
+                      : 'bg-stone-700 text-stone-200 rounded-bl-sm'
                   }`}
                 >
                   {msg.expediteur === 'ald' && (
-                    <div className="text-xs font-semibold text-sky-400 mb-1">ALD Immo</div>
+                    <div className="text-xs font-semibold text-emerald-400 mb-1">ALD Immo</div>
                   )}
                   <p>{msg.contenu}</p>
-                  <div className={`text-xs mt-1.5 ${msg.expediteur === 'proprietaire' ? 'text-sky-100' : 'text-slate-500'}`}>
+                  <div className={`text-xs mt-1.5 ${msg.expediteur === 'proprietaire' ? 'text-emerald-100' : 'text-stone-500'}`}>
                     {new Date(msg.created_at).toLocaleDateString('fr-FR', {
                       day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                     })}
@@ -131,7 +131,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Input */}
-        <div className="px-6 py-4 border-t border-slate-700">
+        <div className="px-6 py-4 border-t border-stone-700">
           <div className="flex gap-3">
             <textarea
               value={newMessage}
@@ -139,12 +139,12 @@ export default function MessagesPage() {
               onKeyDown={handleKeyDown}
               placeholder="Écrivez votre message... (Entrée pour envoyer)"
               rows={2}
-              className="flex-1 bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
+              className="flex-1 bg-stone-700 border border-stone-600 text-white placeholder-slate-400 rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm"
             />
             <button
               onClick={handleSend}
               disabled={sending || !newMessage.trim()}
-              className="bg-sky-500 hover:bg-sky-400 disabled:bg-slate-600 disabled:text-slate-400 text-white px-4 rounded-xl transition-colors flex items-center"
+              className="bg-emerald-600 hover:bg-emerald-400 disabled:bg-stone-600 disabled:text-stone-400 text-white px-4 rounded-xl transition-colors flex items-center"
             >
               <Send className="w-4 h-4" />
             </button>

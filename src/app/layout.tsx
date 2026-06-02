@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ALD Immo - Conciergerie immobilière Bassin d\'Arcachon',
-  description: 'ALD Immo, votre conciergerie immobilière de confiance sur le Bassin d\'Arcachon. Gestion locative, conciergerie premium et optimisation de vos revenus à Gujan-Mestras.',
-  keywords: 'conciergerie immobilière, Bassin d\'Arcachon, Gujan-Mestras, gestion locative, location saisonnière',
+  title: 'ALD Immo - Conciergerie immobilière Bordeaux',
+  description: 'ALD Immo, votre conciergerie immobilière de confiance à Bordeaux et ses environs. Gestion locative, conciergerie premium et optimisation de vos revenus.',
+  keywords: 'conciergerie immobilière, Bordeaux, gestion locative, location saisonnière, Gironde',
 }
 
 export default function RootLayout({

@@ -9,9 +9,9 @@ interface CardProps {
 
 export default function Card({ children, header, footer, className }: CardProps) {
   return (
-    <div className={clsx('bg-slate-800 rounded-xl border border-slate-700', className)}>
+    <div className={clsx('bg-stone-800 rounded-xl border border-stone-700', className)}>
       {header && (
-        <div className="px-6 py-4 border-b border-slate-700">
+        <div className="px-6 py-4 border-b border-stone-700">
           {header}
         </div>
       )}
@@ -19,7 +19,7 @@ export default function Card({ children, header, footer, className }: CardProps)
         {children}
       </div>
       {footer && (
-        <div className="px-6 py-4 border-t border-slate-700">
+        <div className="px-6 py-4 border-t border-stone-700">
           {footer}
         </div>
       )}

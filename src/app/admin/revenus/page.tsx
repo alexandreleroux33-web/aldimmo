@@ -105,7 +105,7 @@ export default function AdminRevenusPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Revenus</h1>
-          <p className="text-slate-400 mt-1">Analyse des revenus par propriété</p>
+          <p className="text-stone-400 mt-1">Analyse des revenus par propriété</p>
         </div>
         <button
           onClick={exportCSV}
@@ -119,25 +119,25 @@ export default function AdminRevenusPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <select value={selectedProprietaire} onChange={e => setSelectedProprietaire(e.target.value)}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm">
           <option value="all">Tous les propriétaires</option>
           {proprietaires.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>)}
         </select>
 
         <select value={selectedBien} onChange={e => setSelectedBien(e.target.value)}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm">
           <option value="all">Tous les biens</option>
           {biens.map(b => <option key={b.id} value={b.id}>{b.nom}</option>)}
         </select>
 
         <select value={selectedMonth} onChange={e => setSelectedMonth(Number(e.target.value))}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm">
           <option value={0}>Tous les mois</option>
           {MOIS_LABELS.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
         </select>
 
         <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-sm">
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
@@ -145,31 +145,31 @@ export default function AdminRevenusPage() {
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Revenus bruts</div>
+          <div className="text-stone-400 text-sm mb-1">Revenus bruts</div>
           <div className="text-2xl font-bold text-white">
             {totalBrut.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Commission ALD (20%)</div>
+          <div className="text-stone-400 text-sm mb-1">Commission ALD (20%)</div>
           <div className="text-2xl font-bold text-emerald-400">
             {totalCommission.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Net versé propriétaires</div>
-          <div className="text-2xl font-bold text-sky-400">
+          <div className="text-stone-400 text-sm mb-1">Net versé propriétaires</div>
+          <div className="text-2xl font-bold text-emerald-400">
             {totalNet.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : rows.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">Aucune donnée pour cette période</div>
+          <div className="p-12 text-center text-stone-500">Aucune donnée pour cette période</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -193,13 +193,13 @@ export default function AdminRevenusPage() {
                     <td className="text-emerald-400">
                       {r.commission.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
-                    <td className="text-sky-400 font-medium">
+                    <td className="text-emerald-400 font-medium">
                       {r.net.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
                   </tr>
                 ))}
                 {/* Total row */}
-                <tr className="border-t-2 border-slate-600 bg-slate-700/30">
+                <tr className="border-t-2 border-stone-600 bg-stone-700/30">
                   <td className="font-bold text-white" colSpan={3}>Total</td>
                   <td className="font-bold text-white">
                     {totalBrut.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
@@ -207,7 +207,7 @@ export default function AdminRevenusPage() {
                   <td className="font-bold text-emerald-400">
                     {totalCommission.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </td>
-                  <td className="font-bold text-sky-400">
+                  <td className="font-bold text-emerald-400">
                     {totalNet.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </td>
                 </tr>

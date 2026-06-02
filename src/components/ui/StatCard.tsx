@@ -13,8 +13,8 @@ export default function StatCard({ icon: Icon, label, value, trend, className }:
   return (
     <div className={clsx('stat-card', className)}>
       <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center">
-          <Icon className="w-5 h-5 text-sky-400" />
+        <div className="w-10 h-10 bg-emerald-600/10 rounded-xl flex items-center justify-center">
+          <Icon className="w-5 h-5 text-emerald-400" />
         </div>
         {trend && (
           <div className={clsx(
@@ -27,7 +27,7 @@ export default function StatCard({ icon: Icon, label, value, trend, className }:
         )}
       </div>
       <div className="text-2xl font-bold text-white mb-1">{value}</div>
-      <div className="text-slate-400 text-sm">{label}</div>
+      <div className="text-stone-400 text-sm">{label}</div>
     </div>
   )
 }

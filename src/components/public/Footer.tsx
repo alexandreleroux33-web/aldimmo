@@ -3,37 +3,35 @@ import { Home, MapPin, Phone, Mail } from 'lucide-react'
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-400 border-t border-slate-800">
+    <footer className="bg-stone-800 text-stone-400 border-t border-stone-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700">
-                <Home className="w-4 h-4 text-sky-400" />
+              <div className="w-8 h-8 bg-emerald-700 rounded-lg flex items-center justify-center">
+                <Home className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-white text-xl">ALD Immo</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-sm">
-              Votre conciergerie immobilière de confiance sur le Bassin d'Arcachon. Gestion locative clé en main, conciergerie premium et optimisation des revenus.
+              Votre conciergerie immobilière de confiance à Bordeaux et ses environs. Gestion locative clé en main, conciergerie premium et optimisation des revenus.
             </p>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-sky-400 flex-shrink-0" />
-                <span>Gujan-Mestras, Bassin d'Arcachon, 33470</span>
+                <MapPin className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>Bordeaux et ses environs</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <a href="tel:+33600000000" className="hover:text-white transition-colors">+33 6 00 00 00 00</a>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                <Mail className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <a href="mailto:contact@aldimmo.fr" className="hover:text-white transition-colors">contact@aldimmo.fr</a>
               </div>
             </div>
           </div>
 
-          {/* Navigation */}
           <div>
             <h3 className="text-white font-semibold mb-4">Navigation</h3>
             <ul className="space-y-2 text-sm">
@@ -44,7 +42,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Propriétaires */}
           <div>
             <h3 className="text-white font-semibold mb-4">Espace propriétaire</h3>
             <ul className="space-y-2 text-sm">
@@ -56,7 +53,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
+        <div className="border-t border-stone-700 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
           <p>&copy; {new Date().getFullYear()} ALD Immo. Tous droits réservés.</p>
           <div className="flex gap-6">
             <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link>

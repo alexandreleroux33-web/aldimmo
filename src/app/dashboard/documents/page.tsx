@@ -19,7 +19,7 @@ const TYPE_ICON: Record<DocumentType, React.ElementType> = {
 }
 
 const TYPE_COLOR: Record<DocumentType, string> = {
-  bilan: 'text-sky-400 bg-sky-400/10',
+  bilan: 'text-emerald-400 bg-emerald-400/10',
   contrat: 'text-emerald-400 bg-emerald-400/10',
   facture: 'text-violet-400 bg-violet-400/10',
 }
@@ -69,17 +69,17 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Documents</h1>
-        <p className="text-slate-400 mt-1">Vos bilans, contrats et factures</p>
+        <p className="text-stone-400 mt-1">Vos bilans, contrats et factures</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 flex-wrap">
+      <div className="flex gap-1 bg-stone-800 p-1 rounded-xl border border-stone-700 flex-wrap">
         {TYPE_TABS.map(t => (
           <button
             key={t.value}
             onClick={() => setFilter(t.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === t.value ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-white'
+              filter === t.value ? 'bg-emerald-600 text-white' : 'text-stone-400 hover:text-white'
             }`}
           >
             {t.label}
@@ -91,11 +91,11 @@ export default function DocumentsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
+          <div className="p-12 text-center text-stone-500">
             <FileText className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Aucun document</p>
           </div>
@@ -127,7 +127,7 @@ export default function DocumentsPage() {
                       </td>
                       <td>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          doc.type === 'bilan' ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' :
+                          doc.type === 'bilan' ? 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20' :
                           doc.type === 'contrat' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                           'bg-violet-500/10 text-violet-400 border-violet-500/20'
                         }`}>
@@ -146,7 +146,7 @@ export default function DocumentsPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-700 hover:bg-stone-600 text-stone-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           Télécharger

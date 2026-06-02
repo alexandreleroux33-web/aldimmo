@@ -103,18 +103,18 @@ export default function AdminReservationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Réservations</h1>
-          <p className="text-slate-400 mt-1">{reservations.length} réservation{reservations.length !== 1 ? 's' : ''} au total</p>
+          <p className="text-stone-400 mt-1">{reservations.length} réservation{reservations.length !== 1 ? 's' : ''} au total</p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="w-4 h-4" /> Ajouter
         </Button>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : reservations.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">
+          <div className="p-12 text-center text-stone-500">
             <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Aucune réservation</p>
           </div>
@@ -141,7 +141,7 @@ export default function AdminReservationsPage() {
                     <td>{(r as any).proprietaires ? `${(r as any).proprietaires.prenom} ${(r as any).proprietaires.nom}` : '—'}</td>
                     <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                     <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
-                    <td className="text-sky-400 font-medium">
+                    <td className="text-emerald-400 font-medium">
                       {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
                     <td className="capitalize">{r.plateforme}</td>
@@ -149,7 +149,7 @@ export default function AdminReservationsPage() {
                       <select
                         value={r.statut}
                         onChange={e => handleStatutChange(r.id, e.target.value as ReservationStatut)}
-                        className="bg-slate-700 border border-slate-600 text-slate-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
+                        className="bg-stone-700 border border-stone-600 text-stone-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-600"
                       >
                         {STATUTS.map(s => (
                           <option key={s} value={s}>{STATUT_LABELS[s]}</option>
@@ -167,56 +167,56 @@ export default function AdminReservationsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Ajouter une réservation">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Bien *</label>
+            <label className="block text-sm font-medium text-stone-300 mb-1.5">Bien *</label>
             <select name="bien_id" value={form.bien_id} onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
               <option value="">Sélectionner...</option>
               {biens.map(b => <option key={b.id} value={b.id}>{b.nom}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Locataire *</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Locataire *</label>
               <input name="locataire_nom" value={form.locataire_nom} onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
                 placeholder="Jean Dupont" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Email locataire</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Email locataire</label>
               <input type="email" name="locataire_email" value={form.locataire_email} onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
                 placeholder="jean@email.com" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Arrivée *</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Arrivée *</label>
               <input type="date" name="date_debut" value={form.date_debut} onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Départ *</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Départ *</label>
               <input type="date" name="date_fin" value={form.date_fin} onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Montant (€)</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Montant (€)</label>
               <input type="number" name="montant_total" value={form.montant_total} onChange={handleChange} min={0} step={0.01}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Plateforme</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Plateforme</label>
               <select name="plateforme" value={form.plateforme} onChange={handleChange}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
                 {PLATEFORMES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Statut</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Statut</label>
               <select name="statut" value={form.statut} onChange={handleChange}
-                className="w-full px-3 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
                 {STATUTS.map(s => <option key={s} value={s}>{STATUT_LABELS[s]}</option>)}
               </select>
             </div>

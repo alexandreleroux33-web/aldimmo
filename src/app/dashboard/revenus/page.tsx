@@ -75,7 +75,7 @@ export default function RevenusPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Revenus</h1>
-        <p className="text-slate-400 mt-1">Suivi de vos revenus locatifs</p>
+        <p className="text-stone-400 mt-1">Suivi de vos revenus locatifs</p>
       </div>
 
       {/* Month selector */}
@@ -83,7 +83,7 @@ export default function RevenusPage() {
         <select
           value={selectedMonth}
           onChange={e => setSelectedMonth(Number(e.target.value))}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600"
         >
           {MOIS_LABELS.map((m, i) => (
             <option key={i + 1} value={i + 1}>{m}</option>
@@ -92,7 +92,7 @@ export default function RevenusPage() {
         <select
           value={selectedYear}
           onChange={e => setSelectedYear(Number(e.target.value))}
-          className="bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          className="bg-stone-800 border border-stone-700 text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-600"
         >
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
@@ -101,19 +101,19 @@ export default function RevenusPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Revenus bruts</div>
+          <div className="text-stone-400 text-sm mb-1">Revenus bruts</div>
           <div className="text-2xl font-bold text-white">
             {revenusBruts.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Commission ALD (20%)</div>
+          <div className="text-stone-400 text-sm mb-1">Commission ALD (20%)</div>
           <div className="text-2xl font-bold text-red-400">
             -{commission.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
         <div className="stat-card">
-          <div className="text-slate-400 text-sm mb-1">Net versé</div>
+          <div className="text-stone-400 text-sm mb-1">Net versé</div>
           <div className="text-2xl font-bold text-emerald-400">
             {netVerse.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
@@ -121,16 +121,16 @@ export default function RevenusPage() {
       </div>
 
       {/* Monthly table */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700">
-        <div className="px-6 py-4 border-b border-slate-700">
+      <div className="bg-stone-800 rounded-xl border border-stone-700">
+        <div className="px-6 py-4 border-b border-stone-700">
           <h2 className="text-white font-semibold">
             Détail — {MOIS_LABELS[selectedMonth - 1]} {selectedYear}
           </h2>
         </div>
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Chargement...</div>
+          <div className="p-12 text-center text-stone-500">Chargement...</div>
         ) : filteredMonth.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">Aucune réservation ce mois</div>
+          <div className="p-12 text-center text-stone-500">Aucune réservation ce mois</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -169,7 +169,7 @@ export default function RevenusPage() {
       </div>
 
       {/* Chart */}
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+      <div className="bg-stone-800 rounded-xl border border-stone-700 p-6">
         <h2 className="text-white font-semibold mb-6">Revenus des 12 derniers mois</h2>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={chartData} barSize={20}>

@@ -12,11 +12,11 @@ const STATUT_CONFIG: Record<ReservationStatut, { label: string; className: strin
   },
   check_in: {
     label: 'Check-in',
-    className: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
+    className: 'bg-emerald-600/10 text-emerald-400 border border-emerald-600/20',
   },
   check_out: {
     label: 'Check-out',
-    className: 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
+    className: 'bg-stone-500/10 text-stone-400 border border-stone-500/20',
   },
   annule: {
     label: 'Annulée',
