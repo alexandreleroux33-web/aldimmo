@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Home, Shield, TrendingUp, Star, Users, ArrowRight, MapPin, Phone, Mail, Clock, HeartHandshake, CheckCircle } from 'lucide-react'
 import Navbar from '@/components/public/Navbar'
 import Footer from '@/components/public/Footer'
+import MapBordeauxWrapper from '@/components/public/MapBordeauxWrapper'
 
 export default function HomePage() {
   const services = [
@@ -110,7 +111,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Trust badges */}
-                <div className="flex flex-wrap gap-5">
+                <div className="flex flex-wrap gap-5 mb-10">
                   {[
                     'Premier entretien gratuit',
                     'Sans engagement',
@@ -121,6 +122,14 @@ export default function HomePage() {
                       <span className="text-sm">{t}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* Carte interactive */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#A89E98' }}>
+                    Zones d&apos;intervention
+                  </p>
+                  <MapBordeauxWrapper />
                 </div>
               </div>
 
