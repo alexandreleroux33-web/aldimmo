@@ -19,14 +19,22 @@ export async function updateSession(request: NextRequest) {
       },
     }
   )
+
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  if (!user && pathname.startsWith('/dashboard')) {
+  // Redirige vers /login si non connecté
+  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin'))) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
-  if (!user && pathname.startsWith('/admin')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+
+  // Redirige vers /dashboard si connecté mais pas admin
+  if (user && pathname.startsWith('/admin')) {
+    const isAdmin = user.user_metadata?.is_admin === true
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
+
   return supabaseResponse
 }
