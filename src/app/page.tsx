@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Home, Shield, TrendingUp, Star, Users, ArrowRight, MapPin, Phone, Mail, Clock, HeartHandshake, CheckCircle } from 'lucide-react'
+import { Home, Shield, TrendingUp, Star, Users, ArrowRight, MapPin, Phone, Mail, Clock, HeartHandshake, CheckCircle, Smile, BarChart2, FileText } from 'lucide-react'
 import Navbar from '@/components/public/Navbar'
 import Footer from '@/components/public/Footer'
 import MapBordeauxWrapper from '@/components/public/MapBordeauxWrapper'
@@ -133,9 +133,10 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* ── Right : composition décorative ── */}
-              <div className="relative hidden lg:block">
-                {/* Carte principale */}
+              {/* ── Right : composition décorative + arguments ── */}
+              <div className="hidden lg:flex flex-col gap-6">
+                {/* Carte principale + flottants */}
+                <div className="relative">
                 <div
                   className="relative rounded-3xl overflow-hidden shadow-2xl"
                   style={{ background: 'linear-gradient(145deg, #EDE3D0 0%, #DFC48A 50%, #C8A96E 100%)', aspectRatio: '4/5' }}
@@ -224,7 +225,46 @@ export default function HomePage() {
                   <div className="text-xs font-semibold" style={{ color: '#2D2926' }}>5 / 5</div>
                   <div className="text-xs" style={{ color: '#A89E98' }}>Avis locataires</div>
                 </div>
-              </div>
+                </div>{/* fin wrapper relative carte */}
+
+                {/* ── 3 arguments clés ── */}
+                <div className="flex flex-col gap-3">
+                  {[
+                    {
+                      icon: Smile,
+                      title: 'Louez l\'esprit tranquille',
+                      desc: 'Nous gérons tout à votre place — réservations, accueil, ménage, maintenance.',
+                    },
+                    {
+                      icon: BarChart2,
+                      title: 'Revenus optimisés',
+                      desc: 'Tarification intelligente selon la saison, la demande et les événements locaux.',
+                    },
+                    {
+                      icon: FileText,
+                      title: 'Transparence totale',
+                      desc: 'Bilan mensuel détaillé disponible à tout moment dans votre espace propriétaire.',
+                    },
+                  ].map(({ icon: Icon, title, desc }) => (
+                    <div
+                      key={title}
+                      className="flex items-start gap-4 rounded-2xl px-5 py-4 transition-all hover:shadow-sm"
+                      style={{ background: 'rgba(250,248,245,0.85)', border: '1px solid rgba(45,41,38,0.08)' }}
+                    >
+                      <div
+                        className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5"
+                        style={{ background: 'rgba(91,140,107,0.12)' }}
+                      >
+                        <Icon className="w-4.5 h-4.5" style={{ color: '#5B8C6B', width: 18, height: 18 }} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold mb-0.5" style={{ color: '#2D2926' }}>{title}</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#7A6E68' }}>{desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>{/* fin colonne droite */}
 
             </div>
           </div>
