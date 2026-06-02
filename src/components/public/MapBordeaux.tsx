@@ -17,13 +17,13 @@ export default function MapBordeaux() {
       const map = L.map(containerRef.current!, {
         center: CENTER,
         zoom: 11,
-        zoomControl: false,
+        zoomControl: true,
         attributionControl: false,
-        scrollWheelZoom: false,
-        dragging: false,
-        doubleClickZoom: false,
-        touchZoom: false,
-        keyboard: false,
+        scrollWheelZoom: true,
+        dragging: true,
+        doubleClickZoom: true,
+        touchZoom: true,
+        keyboard: true,
       })
 
       mapRef.current = map
@@ -48,45 +48,6 @@ export default function MapBordeaux() {
         weight: 1.5,
         opacity: 0.45,
       }).addTo(map)
-
-      // Label "ALD Immo" au centre du cercle
-      const label = L.divIcon({
-        html: `
-          <div style="
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            gap:4px;
-            transform:translate(-50%,-50%);
-            white-space:nowrap;
-          ">
-            <div style="
-              background:rgba(250,248,245,0.92);
-              border:1.5px solid rgba(91,140,107,0.4);
-              border-radius:999px;
-              padding:5px 14px;
-              font-family:system-ui,-apple-system,sans-serif;
-              font-size:12px;
-              font-weight:700;
-              color:#3A5E46;
-              letter-spacing:0.04em;
-              backdrop-filter:blur(6px);
-              box-shadow:0 2px 12px rgba(91,140,107,0.18);
-            ">ALD Immo</div>
-            <div style="
-              font-family:system-ui,-apple-system,sans-serif;
-              font-size:10px;
-              color:#7A6E68;
-              font-weight:500;
-            ">Zone d&apos;intervention</div>
-          </div>
-        `,
-        className: '',
-        iconSize: [0, 0],
-        iconAnchor: [0, 0],
-      })
-
-      L.marker(CENTER, { icon: label, interactive: false }).addTo(map)
 
       // Teinte chaude sur les tuiles
       const pane = map.getPane('tilePane')
