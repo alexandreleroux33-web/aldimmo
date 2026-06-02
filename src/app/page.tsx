@@ -134,7 +134,7 @@ export default function HomePage() {
               </div>
 
               {/* ── Right : 3 arguments clés ── */}
-              <div className="hidden lg:flex flex-col justify-center gap-4">
+              <div className="hidden lg:flex flex-col justify-start gap-4" style={{ paddingTop: 'calc(2rem + 36px)' }}>
                 {[
                   {
                     icon: Smile,
