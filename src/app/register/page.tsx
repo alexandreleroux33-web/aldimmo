@@ -41,16 +41,21 @@ export default function RegisterPage() {
     }
 
     if (authData.user) {
-      const { error: dbError } = await supabase.from('proprietaires').insert({
-        user_id: authData.user.id,
-        nom: form.nom,
-        prenom: form.prenom,
-        email: form.email,
-        telephone: form.telephone || null,
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: authData.user.id,
+          nom: form.nom,
+          prenom: form.prenom,
+          email: form.email,
+          telephone: form.telephone,
+        }),
       })
 
-      if (dbError) {
-        setError('Compte créé mais erreur lors de l\'enregistrement du profil. Contactez-nous.')
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? 'Erreur lors de l\'enregistrement du profil. Contactez-nous.')
         setLoading(false)
         return
       }
