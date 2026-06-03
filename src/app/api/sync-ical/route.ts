@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 )
 
 export async function POST(request: Request) {
-  const { bien_id, proprietaire_id, ical_url, plateforme } = await request.json()
+  const { bien_id, proprietaire_id, ical_url, plateforme, reset } = await request.json()
 
   if (!bien_id || !proprietaire_id || !ical_url || !plateforme) {
     return NextResponse.json({ error: 'bien_id, proprietaire_id, ical_url et plateforme requis' }, { status: 400 })
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'plateforme doit être airbnb ou booking' }, { status: 400 })
   }
 
-  // Parse iCal feed
+  // Parse iCal feed first (fail fast before any deletions)
   let events
   try {
     events = await parseICalFeed(ical_url)
@@ -26,32 +26,60 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Impossible de lire le calendrier iCal : ${err.message}` }, { status: 400 })
   }
 
-  if (events.length === 0) {
-    return NextResponse.json({ inserted: 0, skipped: 0 })
+  // In reset mode: delete all existing reservations for this bien + plateforme
+  let deleted = 0
+  if (reset) {
+    const { data: toDelete, error: fetchErr } = await supabaseAdmin
+      .from('reservations')
+      .select('id')
+      .eq('bien_id', bien_id)
+      .eq('plateforme', plateforme)
+
+    if (fetchErr) {
+      return NextResponse.json({ error: fetchErr.message }, { status: 500 })
+    }
+
+    if (toDelete && toDelete.length > 0) {
+      const { error: delErr } = await supabaseAdmin
+        .from('reservations')
+        .delete()
+        .eq('bien_id', bien_id)
+        .eq('plateforme', plateforme)
+
+      if (delErr) {
+        return NextResponse.json({ error: delErr.message }, { status: 500 })
+      }
+      deleted = toDelete.length
+    }
   }
 
-  // Fetch existing reservations for this bien + plateforme to avoid duplicates
-  const { data: existing } = await supabaseAdmin
-    .from('reservations')
-    .select('date_debut, date_fin')
-    .eq('bien_id', bien_id)
-    .eq('plateforme', plateforme)
+  if (events.length === 0) {
+    return NextResponse.json({ inserted: 0, skipped: 0, deleted })
+  }
 
-  const existingKeys = new Set(
-    (existing ?? []).map(r => `${r.date_debut}__${r.date_fin}`)
-  )
+  // In normal mode: skip dates already imported
+  const existingKeys = new Set<string>()
+  if (!reset) {
+    const { data: existing } = await supabaseAdmin
+      .from('reservations')
+      .select('date_debut, date_fin')
+      .eq('bien_id', bien_id)
+      .eq('plateforme', plateforme)
+    ;(existing ?? []).forEach(r => existingKeys.add(`${r.date_debut}__${r.date_fin}`))
+  }
 
   let inserted = 0
   let skipped = 0
 
   for (const event of events) {
     const key = `${event.dtstart}__${event.dtend}`
-    if (existingKeys.has(key)) {
+
+    if (!reset && existingKeys.has(key)) {
       skipped++
       continue
     }
 
-    // Skip events that are in the past by more than 1 day
+    // Skip events that ended more than 1 day ago
     if (new Date(event.dtend) < new Date(Date.now() - 86400000)) {
       skipped++
       continue
@@ -79,5 +107,5 @@ export async function POST(request: Request) {
     inserted++
   }
 
-  return NextResponse.json({ inserted, skipped, total: events.length })
+  return NextResponse.json({ inserted, skipped, deleted, total: events.length })
 }

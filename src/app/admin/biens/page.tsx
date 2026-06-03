@@ -102,7 +102,7 @@ export default function AdminBiensPage() {
     setSyncResult(null)
   }
 
-  const handleSync = async (plateforme: 'airbnb' | 'booking') => {
+  const handleSync = async (plateforme: 'airbnb' | 'booking', reset = false) => {
     if (!selected) return
     const url = plateforme === 'airbnb' ? icalUrls.airbnb : icalUrls.booking
     if (!url.trim()) { setSyncResult({ ok: false, msg: 'URL iCal manquante' }); return }
@@ -117,11 +117,16 @@ export default function AdminBiensPage() {
           proprietaire_id: selected.proprietaire_id,
           ical_url: url.trim(),
           plateforme,
+          reset,
         }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error)
-      setSyncResult({ ok: true, msg: `${json.inserted} réservation${json.inserted > 1 ? 's' : ''} importée${json.inserted > 1 ? 's' : ''} · ${json.skipped} ignorée${json.skipped > 1 ? 's' : ''}` })
+      const parts = []
+      if (reset && json.deleted > 0) parts.push(`${json.deleted} supprimée${json.deleted > 1 ? 's' : ''}`)
+      parts.push(`${json.inserted} importée${json.inserted > 1 ? 's' : ''}`)
+      if (!reset && json.skipped > 0) parts.push(`${json.skipped} ignorée${json.skipped > 1 ? 's' : ''}`)
+      setSyncResult({ ok: true, msg: parts.join(' · ') })
       load()
     } catch (err: any) {
       setSyncResult({ ok: false, msg: err.message })
@@ -328,6 +333,7 @@ export default function AdminBiensPage() {
                     onChange={v => setIcalUrls(u => ({ ...u, airbnb: v }))}
                     loading={syncing === 'airbnb'}
                     onSync={() => handleSync('airbnb')}
+                    onReset={() => handleSync('airbnb', true)}
                   />
                   <ICalSyncRow
                     label="Booking.com"
@@ -335,6 +341,7 @@ export default function AdminBiensPage() {
                     onChange={v => setIcalUrls(u => ({ ...u, booking: v }))}
                     loading={syncing === 'booking'}
                     onSync={() => handleSync('booking')}
+                    onReset={() => handleSync('booking', true)}
                   />
                 </div>
               </div>
@@ -413,8 +420,9 @@ function FSelect({ label, value, onChange, children }: { label: string; value: s
   )
 }
 
-function ICalSyncRow({ label, value, onChange, loading, onSync }: {
-  label: string; value: string; onChange: (v: string) => void; loading: boolean; onSync: () => void
+function ICalSyncRow({ label, value, onChange, loading, onSync, onReset }: {
+  label: string; value: string; onChange: (v: string) => void
+  loading: boolean; onSync: () => void; onReset: () => void
 }) {
   return (
     <div>
@@ -430,13 +438,27 @@ function ICalSyncRow({ label, value, onChange, loading, onSync }: {
         <button
           onClick={onSync}
           disabled={loading || !value.trim()}
+          title="Importer les nouvelles réservations"
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-white flex-shrink-0 transition-all"
           style={{ background: loading || !value.trim() ? '#A89E98' : '#5B8C6B' }}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           {loading ? 'Sync...' : 'Sync'}
         </button>
+        <button
+          onClick={onReset}
+          disabled={loading || !value.trim()}
+          title="Supprimer toutes les réservations existantes puis réimporter"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium flex-shrink-0 transition-all"
+          style={{ background: loading || !value.trim() ? 'rgba(45,41,38,0.04)' : 'rgba(185,28,28,0.08)', color: loading || !value.trim() ? '#A89E98' : '#b91c1c', border: '1px solid transparent' }}
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Reset
+        </button>
       </div>
+      <p className="text-xs mt-1" style={{ color: '#C8B89A' }}>
+        Sync = nouvelles seulement · Reset = tout supprimer et réimporter
+      </p>
     </div>
   )
 }
