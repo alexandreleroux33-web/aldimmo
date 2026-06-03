@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, Users, Building2, CalendarDays, Euro,
-  LogOut, Menu, X, LayoutDashboard, ShieldCheck, Inbox,
+  LogOut, Menu, X, LayoutDashboard, ShieldCheck, Inbox, MessageSquare,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { adminSelect } from '@/lib/actions/admin'
@@ -18,6 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [archivedCount, setArchivedCount] = useState(0)
 
   const [newDemandesCount, setNewDemandesCount] = useState(0)
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
 
   useEffect(() => {
     adminSelect<{ actif: boolean | null }>('proprietaires', { select: 'actif' })
@@ -25,6 +26,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .catch(() => {})
     adminSelect<{ statut: string }>('demandes', { select: 'statut' })
       .then(rows => setNewDemandesCount(rows.filter(r => r.statut === 'nouveau').length))
+      .catch(() => {})
+    adminSelect<{ lu: boolean; expediteur: string }>('messages', { select: 'lu,expediteur' })
+      .then(rows => setUnreadMessagesCount(rows.filter(r => !r.lu && r.expediteur === 'proprietaire').length))
       .catch(() => {})
   }, [])
 
@@ -64,6 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
           { href: '/admin/calendrier', label: 'Calendrier', icon: CalendarDays },
           { href: '/admin/demandes', label: 'Demandes', icon: Inbox },
+          { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
           { href: '/admin/proprietaires', label: 'Propriétaires', icon: Users },
           { href: '/admin/biens', label: 'Biens', icon: Building2 },
           { href: '/admin/reservations', label: 'Réservations', icon: CalendarDays },
@@ -73,6 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           const badge =
             item.href === '/admin/proprietaires' && archivedCount > 0 ? archivedCount :
             item.href === '/admin/demandes' && newDemandesCount > 0 ? newDemandesCount :
+            item.href === '/admin/messages' && unreadMessagesCount > 0 ? unreadMessagesCount :
             null
           return (
             <Link
@@ -94,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
                   style={active
                     ? { background: 'rgba(255,255,255,0.25)', color: 'white' }
-                    : item.href === '/admin/demandes'
+                    : item.href === '/admin/demandes' || item.href === '/admin/messages'
                       ? { background: 'rgba(185,28,28,0.1)', color: '#b91c1c' }
                       : { background: 'rgba(234,179,8,0.15)', color: '#92680a' }
                   }
