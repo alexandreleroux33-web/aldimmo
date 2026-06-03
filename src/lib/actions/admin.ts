@@ -23,6 +23,10 @@ export async function adminUpdate(table: string, id: string, data: Record<string
   await callAdminDb({ operation: 'update', table, id, data })
 }
 
+export async function adminDelete(table: string, id: string): Promise<void> {
+  await callAdminDb({ operation: 'delete', table, id })
+}
+
 /** Fetches ALL rows from a table bypassing RLS (admin service role key). */
 export async function adminSelect<T = Record<string, unknown>>(
   table: string,

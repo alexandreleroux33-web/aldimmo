@@ -13,6 +13,7 @@ export interface Proprietaire {
   email: string
   telephone?: string
   adresse?: string
+  actif?: boolean
   created_at: string
 }
 

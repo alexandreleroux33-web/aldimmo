@@ -44,6 +44,8 @@ export async function POST(request: Request) {
     result = await supabaseAdmin.from(table).insert(data)
   } else if (operation === 'update' && id) {
     result = await supabaseAdmin.from(table).update(data).eq('id', id)
+  } else if (operation === 'delete' && id) {
+    result = await supabaseAdmin.from(table).delete().eq('id', id)
   } else {
     return NextResponse.json({ error: 'operation invalide' }, { status: 400 })
   }
