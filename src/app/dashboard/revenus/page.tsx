@@ -109,13 +109,13 @@ export default function RevenusPage() {
         </div>
         <div className="stat-card">
           <div className="text-sm mb-1" style={{ color: '#A89E98' }}>Commission ALD (20%)</div>
-          <div className="text-2xl font-bold" style={{ color: '#b91c1c' }}>
+          <div className="text-2xl font-bold" style={{ color: '#2D2926' }}>
             -{commission.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
         <div className="stat-card">
           <div className="text-sm mb-1" style={{ color: '#A89E98' }}>Net versé</div>
-          <div className="text-2xl font-bold" style={{ color: '#3A5E46' }}>
+          <div className="text-2xl font-bold" style={{ color: '#2D2926' }}>
             {netVerse.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
           </div>
         </div>
@@ -158,8 +158,8 @@ export default function RevenusPage() {
                       <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                       <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
                       <td>{brut.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
-                      <td style={{ color: '#b91c1c' }}>-{comm.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
-                      <td className="font-medium" style={{ color: '#3A5E46' }}>{net.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                      <td style={{ color: '#7A6E68' }}>-{comm.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                      <td className="font-medium" style={{ color: '#2D2926' }}>{net.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
                     </tr>
                   )
                 })}
