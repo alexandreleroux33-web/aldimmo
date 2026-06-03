@@ -33,10 +33,11 @@ export default function AdminBiensPage() {
   const [formError, setFormError] = useState('')
 
   const load = async () => {
+    const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [])
     const [bi, props, res] = await Promise.all([
-      adminSelect<Bien>('biens', { order: 'created_at', orderAsc: false }),
-      adminSelect<Proprietaire>('proprietaires', { select: 'id,nom,prenom,email,actif,created_at', order: 'nom', orderAsc: true }),
-      adminSelect<{ bien_id: string; montant_total: number; date_debut: string; date_fin: string; statut: string }>('reservations', { select: 'bien_id,montant_total,date_debut,date_fin,statut' }),
+      safe(adminSelect<Bien>('biens', { order: 'created_at', orderAsc: false })),
+      safe(adminSelect<Proprietaire>('proprietaires', { order: 'nom', orderAsc: true })),
+      safe(adminSelect<{ bien_id: string; montant_total: number; date_debut: string; date_fin: string; statut: string }>('reservations', { select: 'bien_id,montant_total,date_debut,date_fin,statut' })),
     ])
     const activeProps = props.filter(p => p.actif !== false)
 
@@ -65,6 +66,14 @@ export default function AdminBiensPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  // Reload proprietaires whenever the add modal opens, in case load() failed partially
+  useEffect(() => {
+    if (!addOpen) return
+    adminSelect<Proprietaire>('proprietaires', { order: 'nom', orderAsc: true })
+      .then(rows => setProprietaires(rows.filter(p => p.actif !== false)))
+      .catch(() => {})
+  }, [addOpen])
 
   const handleSave = async () => {
     setFormError('')
