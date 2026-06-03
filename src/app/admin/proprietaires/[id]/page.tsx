@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Proprietaire, Bien, Reservation } from '@/lib/types'
-import { ArrowLeft, Mail, Phone, MapPin, Building2, Euro, Calendar, Pencil, Trash2, Archive, X, Check, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, MapPin, Building2, Euro, Calendar, Pencil, Trash2, Archive, X, Check, AlertTriangle, Link as LinkIcon, Unlink, ShieldCheck } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import Link from 'next/link'
 import { adminSelect, adminUpdate, adminDelete } from '@/lib/actions/admin'
@@ -28,6 +28,9 @@ export default function ProprietaireDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting]       = useState(false)
   const [archiving, setArchiving]     = useState(false)
+  const [linking, setLinking]         = useState(false)
+  const [linkError, setLinkError]     = useState('')
+  const [linkSuccess, setLinkSuccess] = useState('')
 
   const load = async () => {
     const [props, bi, res] = await Promise.all([
@@ -89,6 +92,51 @@ export default function ProprietaireDetailPage() {
       alert('Erreur : ' + err.message)
     }
     setArchiving(false)
+  }
+
+  const handleLink = async () => {
+    if (!prop) return
+    setLinking(true)
+    setLinkError('')
+    setLinkSuccess('')
+    try {
+      const res = await fetch('/api/admin/link-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proprietaire_id: id, email: prop.email }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setLinkError(json.error); return }
+      setProp(p => p ? { ...p, user_id: json.user_id } : p)
+      const since = json.last_sign_in ? new Date(json.last_sign_in).toLocaleDateString('fr-FR') : null
+      setLinkSuccess(`Compte lié avec succès${since ? ` · Dernière connexion : ${since}` : ''}`)
+    } catch (err: any) {
+      setLinkError(err.message)
+    } finally {
+      setLinking(false)
+    }
+  }
+
+  const handleUnlink = async () => {
+    if (!prop) return
+    setLinking(true)
+    setLinkError('')
+    setLinkSuccess('')
+    try {
+      const res = await fetch('/api/admin/link-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proprietaire_id: id, action: 'unlink' }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setLinkError(json.error); return }
+      setProp(p => p ? { ...p, user_id: undefined } : p)
+      setLinkSuccess('Compte délié.')
+    } catch (err: any) {
+      setLinkError(err.message)
+    } finally {
+      setLinking(false)
+    }
   }
 
   if (loading) return (
@@ -169,6 +217,65 @@ export default function ProprietaireDetailPage() {
               <InfoRow icon={<Phone className="w-4 h-4" />} value={prop.telephone || '—'} />
               <InfoRow icon={<MapPin className="w-4 h-4" />} value={prop.adresse || '—'} multiline />
             </div>
+          </div>
+
+          {/* Compte client */}
+          <div className="rounded-2xl p-5" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-4 h-4" style={{ color: '#5B8C6B' }} />
+              <h2 className="font-semibold" style={{ color: '#2D2926' }}>Compte client</h2>
+            </div>
+
+            {linkError && (
+              <div className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2 mb-3">{linkError}</div>
+            )}
+            {linkSuccess && (
+              <div className="text-xs rounded-xl px-3 py-2 mb-3" style={{ background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }}>{linkSuccess}</div>
+            )}
+
+            {prop.user_id ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-xl" style={{ background: 'rgba(91,140,107,0.08)', border: '1px solid rgba(91,140,107,0.2)' }}>
+                  <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#3A5E46' }} />
+                  <div>
+                    <div className="font-medium" style={{ color: '#3A5E46' }}>Compte lié</div>
+                    <div className="mt-0.5 font-mono text-xs break-all" style={{ color: '#5B8C6B' }}>{prop.user_id}</div>
+                  </div>
+                </div>
+                <p className="text-xs" style={{ color: '#A89E98' }}>
+                  Ce propriétaire voit ses réservations et biens dans son espace /dashboard.
+                </p>
+                <button
+                  onClick={handleUnlink}
+                  disabled={linking}
+                  className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-xl w-full justify-center transition-all"
+                  style={{ background: 'rgba(185,28,28,0.06)', color: '#b91c1c', border: '1px solid rgba(185,28,28,0.15)' }}
+                >
+                  <Unlink className="w-3.5 h-3.5" />
+                  {linking ? 'Déliaison...' : 'Délier le compte'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-xl" style={{ background: 'rgba(45,41,38,0.04)', border: '1px solid rgba(45,41,38,0.08)' }}>
+                  <Unlink className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#A89E98' }} />
+                  <span style={{ color: '#A89E98' }}>Aucun compte lié</span>
+                </div>
+                <p className="text-xs" style={{ color: '#A89E98' }}>
+                  Cherche automatiquement un compte Supabase avec l'email <strong style={{ color: '#7A6E68' }}>{prop.email}</strong>.
+                  Le propriétaire doit d'abord créer son compte sur le site.
+                </p>
+                <button
+                  onClick={handleLink}
+                  disabled={linking}
+                  className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-xl w-full justify-center transition-all"
+                  style={{ background: linking ? 'rgba(45,41,38,0.04)' : 'rgba(91,140,107,0.1)', color: linking ? '#A89E98' : '#3A5E46', border: '1px solid rgba(91,140,107,0.2)' }}
+                >
+                  <LinkIcon className="w-3.5 h-3.5" />
+                  {linking ? 'Recherche...' : 'Lier le compte'}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* KPIs */}
