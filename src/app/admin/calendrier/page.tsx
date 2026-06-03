@@ -5,6 +5,7 @@ import { Reservation, Bien, Proprietaire } from '@/lib/types'
 import { adminSelect } from '@/lib/actions/admin'
 import { ChevronLeft, ChevronRight, X, User, Building2, Euro, Calendar } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
+import { formatMontant } from '@/lib/utils'
 
 const MOIS_LABELS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
@@ -279,7 +280,7 @@ export default function CalendrierPage() {
               <InfoRow
                 icon={<Euro className="w-4 h-4" />}
                 label="Montant total"
-                value={Number(selected.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                value={formatMontant(Number(selected.montant_total), selected.plateforme)}
               />
             </div>
           </div>

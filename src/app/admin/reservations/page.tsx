@@ -6,6 +6,7 @@ import { Reservation, ReservationStatut, Bien, Proprietaire, Plateforme } from '
 import Badge from '@/components/ui/Badge'
 import { Plus, ChevronDown, X, Search, SlidersHorizontal } from 'lucide-react'
 import { adminInsert, adminUpdate } from '@/lib/actions/admin'
+import { formatMontant } from '@/lib/utils'
 
 const STATUTS: ReservationStatut[] = ['en_attente', 'confirme', 'check_in', 'check_out', 'annule']
 const STATUT_LABELS: Record<ReservationStatut, string> = {
@@ -208,7 +209,7 @@ export default function AdminReservationsPage() {
                     <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                     <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
                     <td className="font-medium" style={{ color: '#3A5E46' }}>
-                      {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                      {formatMontant(Number(r.montant_total), r.plateforme)}
                     </td>
                     <td>
                       <span className="text-xs capitalize px-2 py-0.5 rounded-full" style={{ background: 'rgba(45,41,38,0.06)', color: '#7A6E68' }}>
@@ -290,15 +291,17 @@ export default function AdminReservationsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm" style={{ color: '#3A5E46' }}>Montant total</span>
                   <span className="text-xl font-bold" style={{ color: '#2D2926' }}>
-                    {Number(selected.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    {formatMontant(Number(selected.montant_total), selected.plateforme)}
                   </span>
                 </div>
+                {Number(selected.montant_total) > 0 && (
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-xs" style={{ color: '#A89E98' }}>Commission ALD (20%)</span>
                   <span className="text-sm font-medium" style={{ color: '#5B8C6B' }}>
                     {(Number(selected.montant_total) * 0.2).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                   </span>
                 </div>
+                )}
               </div>
             </div>
           </div>

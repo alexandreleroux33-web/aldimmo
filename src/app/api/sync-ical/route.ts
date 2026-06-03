@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { parseICalFeed } from '@/lib/ical'
+import { parseICalFeed, extractGuestName } from '@/lib/ical'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,11 +57,7 @@ export async function POST(request: Request) {
       continue
     }
 
-    const summary = event.summary?.trim()
-    const locataire_nom =
-      summary && summary.toLowerCase() !== 'airbnb (not available)' && summary !== 'Réservé' && summary !== 'Reserved'
-        ? summary
-        : `Réservation ${plateforme}`
+    const locataire_nom = extractGuestName(event, plateforme as 'airbnb' | 'booking')
 
     const { error } = await supabaseAdmin.from('reservations').insert({
       bien_id,

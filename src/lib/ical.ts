@@ -1,11 +1,3 @@
-/**
- * iCal sync architecture for Airbnb & Booking.com
- *
- * Usage (future):
- *   const events = await parseICalFeed(bien.ical_airbnb_url)
- *   await syncReservations(bien.id, bien.proprietaire_id, events, 'airbnb')
- */
-
 export interface ICalEvent {
   uid: string
   summary: string
@@ -14,10 +6,6 @@ export interface ICalEvent {
   description?: string
 }
 
-/**
- * Fetches and parses an iCal feed URL.
- * Must be called server-side (Next.js API route or server action) to avoid CORS.
- */
 export async function parseICalFeed(url: string): Promise<ICalEvent[]> {
   const response = await fetch(url, { next: { revalidate: 3600 } })
   if (!response.ok) throw new Error(`iCal fetch failed: ${response.status}`)
@@ -25,15 +13,19 @@ export async function parseICalFeed(url: string): Promise<ICalEvent[]> {
   return parseICalText(text)
 }
 
-function parseICalText(text: string): ICalEvent[] {
-  const events: ICalEvent[] = []
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
+export function parseICalText(text: string): ICalEvent[] {
+  // Unfold: continuation lines start with a space or tab (RFC 5545 §3.1)
+  const unfolded = text
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\n[ \t]/g, '')
 
+  const events: ICalEvent[] = []
+  const lines = unfolded.split('\n')
   let current: Partial<ICalEvent> | null = null
 
   for (const raw of lines) {
     const line = raw.trim()
-
     if (line === 'BEGIN:VEVENT') {
       current = {}
     } else if (line === 'END:VEVENT' && current) {
@@ -42,11 +34,16 @@ function parseICalText(text: string): ICalEvent[] {
       }
       current = null
     } else if (current) {
-      if (line.startsWith('UID:')) current.uid = line.slice(4)
-      else if (line.startsWith('SUMMARY:')) current.summary = line.slice(8)
-      else if (line.startsWith('DESCRIPTION:')) current.description = line.slice(12)
-      else if (line.startsWith('DTSTART')) current.dtstart = extractDate(line)
-      else if (line.startsWith('DTEND')) current.dtend = extractDate(line)
+      const colonIdx = line.indexOf(':')
+      if (colonIdx === -1) continue
+      const key = line.slice(0, colonIdx).split(';')[0].toUpperCase()
+      const val = line.slice(colonIdx + 1).replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';')
+
+      if (key === 'UID') current.uid = val
+      else if (key === 'SUMMARY') current.summary = val
+      else if (key === 'DESCRIPTION') current.description = val
+      else if (key === 'DTSTART') current.dtstart = extractDate(line)
+      else if (key === 'DTEND') current.dtend = extractDate(line)
     }
   }
 
@@ -54,39 +51,42 @@ function parseICalText(text: string): ICalEvent[] {
 }
 
 function extractDate(line: string): string {
-  // Handles DTSTART:20240101 and DTSTART;VALUE=DATE:20240101 and DTSTART;TZID=...:20240101T...
   const value = line.split(':').slice(1).join(':').trim()
   const dateOnly = value.slice(0, 8)
   return `${dateOnly.slice(0, 4)}-${dateOnly.slice(4, 6)}-${dateOnly.slice(6, 8)}`
 }
 
-/**
- * Syncs iCal events into the reservations table.
- * Upserts based on a synthetic locataire_nom containing the iCal UID to detect duplicates.
- *
- * This function is a server-side placeholder. Implement as a Next.js server action
- * or API route (/api/ical/sync) with the Supabase service role key.
- */
-export async function syncReservations(
-  bienId: string,
-  proprietaireId: string,
-  events: ICalEvent[],
-  plateforme: 'airbnb' | 'booking'
-): Promise<{ inserted: number; skipped: number }> {
-  // TODO: implement using supabase admin client in an API route
-  // Example shape:
-  // for (const event of events) {
-  //   await supabaseAdmin.from('reservations').upsert({
-  //     bien_id: bienId,
-  //     proprietaire_id: proprietaireId,
-  //     locataire_nom: event.summary || 'Réservation externe',
-  //     date_debut: event.dtstart,
-  //     date_fin: event.dtend,
-  //     statut: 'confirme',
-  //     plateforme,
-  //     montant_total: 0, // iCal doesn't contain pricing
-  //     ical_uid: event.uid,
-  //   }, { onConflict: 'ical_uid' })
-  // }
-  throw new Error('syncReservations must be called server-side via an API route')
+const GENERIC_SUMMARIES = [
+  'réservé', 'reserved', 'airbnb (not available)', 'not available',
+  'indisponible', 'blocked', 'unavailable', 'booking.com (not available)',
+]
+
+/** Extracts the best available guest name from an iCal event. */
+export function extractGuestName(event: ICalEvent, plateforme: 'airbnb' | 'booking'): string {
+  const summary = event.summary?.trim() ?? ''
+
+  // Use SUMMARY if it's not a generic placeholder
+  if (summary && !GENERIC_SUMMARIES.includes(summary.toLowerCase())) {
+    return summary
+  }
+
+  // Try DESCRIPTION: Airbnb embeds "First name: X" or "Prénom : X"
+  const desc = event.description ?? ''
+  const patterns = [
+    /First name[:\s]+([^\n\\]+)/i,
+    /Prénom[:\s]+([^\n\\]+)/i,
+    /Guest[:\s]+([^\n\\]+)/i,
+    /Locataire[:\s]+([^\n\\]+)/i,
+  ]
+  for (const re of patterns) {
+    const m = desc.match(re)
+    if (m) return m[1].trim()
+  }
+
+  // Blocked / unavailable dates
+  if (GENERIC_SUMMARIES.some(g => summary.toLowerCase().includes(g) || desc.toLowerCase().includes(g))) {
+    return plateforme === 'airbnb' ? 'Indisponible Airbnb' : 'Indisponible Booking'
+  }
+
+  return `Réservation ${plateforme}`
 }

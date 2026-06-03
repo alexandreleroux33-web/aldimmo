@@ -10,6 +10,7 @@ import Link from 'next/link'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
+import { formatMontant } from '@/lib/utils'
 
 const MOIS_SHORT = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
 
@@ -189,7 +190,7 @@ export default function AdminPage() {
                   <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                   <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
                   <td className="font-medium" style={{ color: '#3A5E46' }}>
-                    {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    {formatMontant(Number(r.montant_total), r.plateforme)}
                   </td>
                   <td><Badge statut={r.statut} /></td>
                 </tr>
