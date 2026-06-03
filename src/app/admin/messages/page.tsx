@@ -103,6 +103,17 @@ export default function AdminMessagesPage() {
       })
       setReply('')
       await load()
+
+      // Fire-and-forget notifications (email + SMS)
+      fetch('/api/admin/notify-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proprietaire_prenom: selected.proprietaire.prenom,
+          proprietaire_email: selected.proprietaire.email,
+          proprietaire_telephone: selected.proprietaire.telephone ?? null,
+        }),
+      }).catch(() => {})
     } finally {
       setSending(false)
     }
