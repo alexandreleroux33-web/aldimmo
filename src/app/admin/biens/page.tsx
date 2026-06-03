@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Bien, BienType, Proprietaire } from '@/lib/types'
 import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { adminInsert } from '@/lib/actions/admin'
+import { adminInsert, adminSelect } from '@/lib/actions/admin'
 
 type EnrichedBien = Bien & { nb_res: number; revenus: number; taux_occupation: number; ical_airbnb_url?: string; ical_booking_url?: string }
 
@@ -33,16 +33,17 @@ export default function AdminBiensPage() {
   const [formError, setFormError] = useState('')
 
   const load = async () => {
-    const supabase = createClient()
-    const [{ data: bi }, { data: props }, { data: res }] = await Promise.all([
-      supabase.from('biens').select('*, proprietaires(nom, prenom)').order('created_at', { ascending: false }),
-      supabase.from('proprietaires').select('id, nom, prenom, email, created_at').order('nom'),
-      supabase.from('reservations').select('bien_id, montant_total, date_debut, date_fin, statut').neq('statut', 'annule'),
+    const [bi, props, res] = await Promise.all([
+      adminSelect<Bien>('biens', { order: 'created_at', orderAsc: false }),
+      adminSelect<Proprietaire>('proprietaires', { select: 'id,nom,prenom,email,actif,created_at', order: 'nom', orderAsc: true }),
+      adminSelect<{ bien_id: string; montant_total: number; date_debut: string; date_fin: string; statut: string }>('reservations', { select: 'bien_id,montant_total,date_debut,date_fin,statut' }),
     ])
+    const activeProps = props.filter(p => p.actif !== false)
 
     const now = new Date()
-    const enriched = (bi || []).map(b => {
-      const bRes = (res || []).filter(r => r.bien_id === b.id)
+    const enriched = bi.map(b => {
+      const owner = props.find(p => p.id === b.proprietaire_id)
+      const bRes = res.filter(r => r.bien_id === b.id)
       const revenus = bRes.reduce((s, r) => s + Number(r.montant_total), 0)
       // Occupation: count unique booked days in last 30 days
       const daysBooked = new Set<string>()
@@ -55,11 +56,11 @@ export default function AdminBiensPage() {
           cur = new Date(cur.getTime() + 86400000)
         }
       })
-      return { ...b, nb_res: bRes.length, revenus, taux_occupation: Math.round((daysBooked.size / 30) * 100) }
+      return { ...b, nb_res: bRes.length, revenus, taux_occupation: Math.round((daysBooked.size / 30) * 100), _owner: owner }
     })
 
     setBiens(enriched)
-    setProprietaires(props || [])
+    setProprietaires(activeProps)
     setLoading(false)
   }
 
@@ -200,9 +201,9 @@ export default function AdminBiensPage() {
               <p className="text-xs mb-4 truncate" style={{ color: '#A89E98' }}>{b.adresse}</p>
 
               {/* Proprietaire */}
-              {(b as any).proprietaires && (
+              {(b as any)._owner && (
                 <p className="text-xs mb-4" style={{ color: '#7A6E68' }}>
-                  Propriétaire : <span className="font-medium">{(b as any).proprietaires.prenom} {(b as any).proprietaires.nom}</span>
+                  Propriétaire : <span className="font-medium">{(b as any)._owner.prenom} {(b as any)._owner.nom}</span>
                 </p>
               )}
 
@@ -268,7 +269,7 @@ export default function AdminBiensPage() {
                 <InfoItem label="Type" value={TYPE_LABELS[selected.type]} />
                 <InfoItem label="Statut" value={selected.statut} />
                 <InfoItem label="Adresse" value={selected.adresse} />
-                <InfoItem label="Propriétaire" value={(selected as any).proprietaires ? `${(selected as any).proprietaires.prenom} ${(selected as any).proprietaires.nom}` : '—'} />
+                <InfoItem label="Propriétaire" value={(selected as any)._owner ? `${(selected as any)._owner.prenom} ${(selected as any)._owner.nom}` : '—'} />
                 <InfoItem label="Chambres" value={`${selected.chambres} chambre${selected.chambres > 1 ? 's' : ''}`} />
                 <InfoItem label="Capacité" value={`${selected.capacite} personne${selected.capacite > 1 ? 's' : ''}`} />
                 <InfoItem label="Prix / nuit" value={`${Number(selected.prix_nuit).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`} />
