@@ -8,13 +8,12 @@ interface ModalProps {
   onClose: () => void
   title?: string
   children: React.ReactNode
+  maxWidth?: string
 }
 
-export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) {
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     if (isOpen) {
       document.addEventListener('keydown', handleKey)
       document.body.style.overflow = 'hidden'
@@ -29,24 +28,26 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      {/* Modal */}
-      <div className="relative z-10 bg-stone-800 border border-stone-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-stone-700">
-          {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
+        className={`relative z-10 w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl`}
+        style={{ background: 'white', border: '1px solid rgba(45,41,38,0.1)' }}
+      >
+        <div
+          className="flex items-center justify-between px-6 py-5"
+          style={{ borderBottom: '1px solid rgba(45,41,38,0.08)' }}
+        >
+          {title && <h2 className="text-lg font-semibold" style={{ color: '#2D2926' }}>{title}</h2>}
           <button
             onClick={onClose}
-            className="ml-auto text-stone-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-stone-700"
+            className="ml-auto w-8 h-8 flex items-center justify-center rounded-xl transition-all"
+            style={{ color: '#A89E98' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(45,41,38,0.06)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
-        {/* Content */}
         <div className="px-6 py-5">
           {children}
         </div>

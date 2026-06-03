@@ -3,208 +3,343 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Bien, BienType, Proprietaire } from '@/lib/types'
-import Modal from '@/components/ui/Modal'
-import Button from '@/components/ui/Button'
-import { Plus, Building2 } from 'lucide-react'
+import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon } from 'lucide-react'
+import Link from 'next/link'
+
+type EnrichedBien = Bien & { nb_res: number; revenus: number; taux_occupation: number; ical_airbnb_url?: string; ical_booking_url?: string }
+
+const TYPE_LABELS: Record<BienType, string> = {
+  appartement: 'Appartement',
+  villa: 'Villa',
+  maison: 'Maison',
+}
 
 export default function AdminBiensPage() {
-  const [biens, setBiens] = useState<Bien[]>([])
+  const [biens, setBiens] = useState<EnrichedBien[]>([])
   const [proprietaires, setProprietaires] = useState<Proprietaire[]>([])
   const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [filterProp, setFilterProp] = useState('all')
+  const [addOpen, setAddOpen] = useState(false)
+  const [selected, setSelected] = useState<EnrichedBien | null>(null)
   const [form, setForm] = useState({
-    nom: '',
-    adresse: '',
-    type: 'appartement' as BienType,
-    chambres: '1',
-    capacite: '2',
-    prix_nuit: '0',
-    proprietaire_id: '',
+    nom: '', adresse: '', type: 'appartement' as BienType,
+    chambres: '1', capacite: '2', prix_nuit: '0', proprietaire_id: '',
   })
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
 
   const load = async () => {
     const supabase = createClient()
-    const [{ data: bi }, { data: props }] = await Promise.all([
+    const [{ data: bi }, { data: props }, { data: res }] = await Promise.all([
       supabase.from('biens').select('*, proprietaires(nom, prenom)').order('created_at', { ascending: false }),
-      supabase.from('proprietaires').select('*').order('nom'),
+      supabase.from('proprietaires').select('id, nom, prenom, email, created_at').order('nom'),
+      supabase.from('reservations').select('bien_id, montant_total, date_debut, date_fin, statut').neq('statut', 'annule'),
     ])
-    setBiens(bi || [])
+
+    const now = new Date()
+    const enriched = (bi || []).map(b => {
+      const bRes = (res || []).filter(r => r.bien_id === b.id)
+      const revenus = bRes.reduce((s, r) => s + Number(r.montant_total), 0)
+      // Occupation: count unique booked days in last 30 days
+      const daysBooked = new Set<string>()
+      bRes.forEach(r => {
+        let cur = new Date(r.date_debut)
+        const end = new Date(r.date_fin)
+        while (cur < end) {
+          const diff = (now.getTime() - cur.getTime()) / 86400000
+          if (diff >= 0 && diff <= 30) daysBooked.add(cur.toISOString().slice(0, 10))
+          cur = new Date(cur.getTime() + 86400000)
+        }
+      })
+      return { ...b, nb_res: bRes.length, revenus, taux_occupation: Math.round((daysBooked.size / 30) * 100) }
+    })
+
+    setBiens(enriched)
     setProprietaires(props || [])
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-
-  const toggleStatut = async (bien: Bien) => {
-    const supabase = createClient()
-    const newStatut = bien.statut === 'actif' ? 'inactif' : 'actif'
-    await supabase.from('biens').update({ statut: newStatut }).eq('id', bien.id)
-    setBiens(prev => prev.map(b => b.id === bien.id ? { ...b, statut: newStatut } : b))
-  }
-
   const handleSave = async () => {
-    if (!form.nom || !form.adresse || !form.proprietaire_id) {
-      setError('Nom, adresse et propriétaire sont requis.')
-      return
-    }
+    setFormError('')
+    if (!form.nom || !form.adresse || !form.proprietaire_id) { setFormError('Nom, adresse et propriétaire requis'); return }
     setSaving(true)
-    setError('')
     const supabase = createClient()
-    const { error: err } = await supabase.from('biens').insert({
-      nom: form.nom,
-      adresse: form.adresse,
-      type: form.type,
-      chambres: parseInt(form.chambres),
-      capacite: parseInt(form.capacite),
-      prix_nuit: parseFloat(form.prix_nuit),
-      proprietaire_id: form.proprietaire_id,
+    const { error } = await supabase.from('biens').insert({
+      nom: form.nom, adresse: form.adresse, type: form.type,
+      chambres: parseInt(form.chambres), capacite: parseInt(form.capacite),
+      prix_nuit: parseFloat(form.prix_nuit), proprietaire_id: form.proprietaire_id,
       statut: 'actif',
     })
     setSaving(false)
-    if (err) { setError(err.message); return }
-    setModalOpen(false)
-    setForm({ nom: '', adresse: '', type: 'appartement', chambres: '1', capacite: '2', prix_nuit: '0', proprietaire_id: '' })
+    if (error) { setFormError(error.message); return }
+    setAddOpen(false)
     load()
   }
 
+  const filtered = filterProp === 'all' ? biens : biens.filter(b => b.proprietaire_id === filterProp)
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Biens</h1>
-          <p className="text-stone-400 mt-1">{biens.length} bien{biens.length !== 1 ? 's' : ''} enregistré{biens.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-2xl font-bold" style={{ color: '#2D2926' }}>Biens</h1>
+          <p className="mt-1" style={{ color: '#A89E98' }}>{biens.length} bien{biens.length > 1 ? 's' : ''} enregistré{biens.length > 1 ? 's' : ''}</p>
         </div>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="w-4 h-4" /> Ajouter un bien
-        </Button>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white"
+          style={{ background: '#5B8C6B' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#4A7559'}
+          onMouseLeave={e => e.currentTarget.style.background = '#5B8C6B'}
+        >
+          <Plus className="w-4 h-4" />Ajouter
+        </button>
       </div>
 
-      <div className="bg-stone-800 rounded-xl border border-stone-700">
-        {loading ? (
-          <div className="p-12 text-center text-stone-500">Chargement...</div>
-        ) : biens.length === 0 ? (
-          <div className="p-12 text-center text-stone-500">
-            <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>Aucun bien</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Bien</th>
-                  <th>Propriétaire</th>
-                  <th>Type</th>
-                  <th>Chambres</th>
-                  <th>Prix/nuit</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
-              <tbody>
-                {biens.map(b => (
-                  <tr key={b.id}>
-                    <td>
-                      <div className="font-medium text-white">{b.nom}</div>
-                      <div className="text-stone-500 text-xs">{b.adresse}</div>
-                    </td>
-                    <td>{(b as any).proprietaires ? `${(b as any).proprietaires.prenom} ${(b as any).proprietaires.nom}` : '—'}</td>
-                    <td className="capitalize">{b.type}</td>
-                    <td>{b.chambres} ch. · {b.capacite} pers.</td>
-                    <td className="font-medium text-emerald-400">
-                      {Number(b.prix_nuit).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => toggleStatut(b)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                          b.statut === 'actif' ? 'bg-emerald-600' : 'bg-stone-600'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            b.statut === 'actif' ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                      <span className={`ml-2 text-xs ${b.statut === 'actif' ? 'text-emerald-400' : 'text-stone-500'}`}>
-                        {b.statut === 'actif' ? 'Actif' : 'Inactif'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      {/* Filter by owner */}
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={() => setFilterProp('all')}
+          className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all"
+          style={filterProp === 'all' ? { background: '#5B8C6B', color: 'white' } : { background: 'white', color: '#7A6E68', border: '1px solid rgba(45,41,38,0.1)' }}
+        >
+          Tous
+        </button>
+        {proprietaires.map(p => (
+          <button
+            key={p.id}
+            onClick={() => setFilterProp(p.id)}
+            className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all"
+            style={filterProp === p.id ? { background: '#5B8C6B', color: 'white' } : { background: 'white', color: '#7A6E68', border: '1px solid rgba(45,41,38,0.1)' }}
+          >
+            {p.prenom} {p.nom}
+          </button>
+        ))}
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Ajouter un bien">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-300 mb-1.5">Propriétaire *</label>
-            <select name="proprietaire_id" value={form.proprietaire_id} onChange={handleChange}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
-              <option value="">Sélectionner...</option>
-              {proprietaires.map(p => (
-                <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>
-              ))}
-            </select>
+      {/* Cards */}
+      {loading ? (
+        <div className="text-center py-16" style={{ color: '#A89E98' }}>Chargement...</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16" style={{ color: '#A89E98' }}>Aucun bien trouvé</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map(b => (
+            <div
+              key={b.id}
+              className="rounded-2xl p-5 cursor-pointer transition-all hover:shadow-md"
+              style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}
+              onClick={() => setSelected(b)}
+            >
+              {/* Type badge + statut */}
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-xs font-medium px-2.5 py-1 rounded-full"
+                  style={{ background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }}
+                >
+                  {TYPE_LABELS[b.type]}
+                </span>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full"
+                  style={b.statut === 'actif'
+                    ? { background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }
+                    : { background: 'rgba(45,41,38,0.06)', color: '#A89E98' }
+                  }
+                >
+                  {b.statut}
+                </span>
+              </div>
+
+              {/* Name */}
+              <h3 className="font-semibold text-base mb-1" style={{ color: '#2D2926' }}>{b.nom}</h3>
+              <p className="text-xs mb-4 truncate" style={{ color: '#A89E98' }}>{b.adresse}</p>
+
+              {/* Proprietaire */}
+              {(b as any).proprietaires && (
+                <p className="text-xs mb-4" style={{ color: '#7A6E68' }}>
+                  Propriétaire : <span className="font-medium">{(b as any).proprietaires.prenom} {(b as any).proprietaires.nom}</span>
+                </p>
+              )}
+
+              {/* Details grid */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
+                  <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{b.chambres}</div>
+                  <div className="text-xs" style={{ color: '#A89E98' }}>ch.</div>
+                </div>
+                <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
+                  <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{b.capacite}</div>
+                  <div className="text-xs" style={{ color: '#A89E98' }}>pers.</div>
+                </div>
+                <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
+                  <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{Number(b.prix_nuit).toFixed(0)}€</div>
+                  <div className="text-xs" style={{ color: '#A89E98' }}>/nuit</div>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex gap-4 pt-3" style={{ borderTop: '1px solid rgba(45,41,38,0.06)' }}>
+                <div>
+                  <div className="text-xs" style={{ color: '#A89E98' }}>Réservations</div>
+                  <div className="text-sm font-semibold" style={{ color: '#2D2926' }}>{b.nb_res}</div>
+                </div>
+                <div>
+                  <div className="text-xs" style={{ color: '#A89E98' }}>Revenus</div>
+                  <div className="text-sm font-semibold" style={{ color: '#3A5E46' }}>
+                    {b.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                  </div>
+                </div>
+                <div className="ml-auto">
+                  <div className="text-xs" style={{ color: '#A89E98' }}>Occ. 30j</div>
+                  <div className="text-sm font-semibold" style={{ color: b.taux_occupation > 60 ? '#3A5E46' : '#7A6E68' }}>
+                    {b.taux_occupation}%
+                  </div>
+                </div>
+              </div>
+
+              {/* iCal indicator */}
+              {(b.ical_airbnb_url || b.ical_booking_url) && (
+                <div className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: '#5B8C6B' }}>
+                  <LinkIcon className="w-3 h-3" />
+                  iCal synchronisé
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Detail modal */}
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSelected(null)} />
+          <div className="relative z-10 w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'white' }}>
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(45,41,38,0.08)' }}>
+              <h2 className="font-semibold" style={{ color: '#2D2926' }}>{selected.nom}</h2>
+              <button onClick={() => setSelected(null)} style={{ color: '#A89E98' }}><X className="w-5 h-5" /></button>
+            </div>
+            <div className="px-6 py-5 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <InfoItem label="Type" value={TYPE_LABELS[selected.type]} />
+                <InfoItem label="Statut" value={selected.statut} />
+                <InfoItem label="Adresse" value={selected.adresse} />
+                <InfoItem label="Propriétaire" value={(selected as any).proprietaires ? `${(selected as any).proprietaires.prenom} ${(selected as any).proprietaires.nom}` : '—'} />
+                <InfoItem label="Chambres" value={`${selected.chambres} chambre${selected.chambres > 1 ? 's' : ''}`} />
+                <InfoItem label="Capacité" value={`${selected.capacite} personne${selected.capacite > 1 ? 's' : ''}`} />
+                <InfoItem label="Prix / nuit" value={`${Number(selected.prix_nuit).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`} />
+                <InfoItem label="Réservations" value={String(selected.nb_res)} />
+              </div>
+
+              <div className="rounded-xl p-4" style={{ background: 'rgba(91,140,107,0.06)', border: '1px solid rgba(91,140,107,0.15)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm" style={{ color: '#3A5E46' }}>Revenus totaux</span>
+                  <span className="text-xl font-bold" style={{ color: '#2D2926' }}>
+                    {selected.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs" style={{ color: '#A89E98' }}>Taux d'occupation (30j)</span>
+                  <span className="text-sm font-semibold" style={{ color: '#5B8C6B' }}>{selected.taux_occupation}%</span>
+                </div>
+              </div>
+
+              {/* iCal sync (future feature) */}
+              <div className="rounded-xl p-4" style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.08)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <LinkIcon className="w-4 h-4" style={{ color: '#5B8C6B' }} />
+                  <span className="text-sm font-medium" style={{ color: '#2D2926' }}>Synchronisation iCal</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full ml-auto" style={{ background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }}>Bientôt</span>
+                </div>
+                <div className="space-y-2">
+                  <ICalInput label="URL iCal Airbnb" value={selected.ical_airbnb_url || ''} />
+                  <ICalInput label="URL iCal Booking.com" value={selected.ical_booking_url || ''} />
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-300 mb-1.5">Nom du bien *</label>
-            <input name="nom" value={form.nom} onChange={handleChange}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              placeholder="Villa Les Pins" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-300 mb-1.5">Adresse *</label>
-            <input name="adresse" value={form.adresse} onChange={handleChange}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              placeholder="12 rue des Pins, Gujan-Mestras" />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-stone-300 mb-1.5">Type</label>
-              <select name="type" value={form.type} onChange={handleChange}
-                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+        </div>
+      )}
+
+      {/* Add modal */}
+      {addOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setAddOpen(false)} />
+          <div className="relative z-10 w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'white' }}>
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(45,41,38,0.08)' }}>
+              <h2 className="font-semibold" style={{ color: '#2D2926' }}>Nouveau bien</h2>
+              <button onClick={() => setAddOpen(false)} style={{ color: '#A89E98' }}><X className="w-5 h-5" /></button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              {formError && <div className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2">{formError}</div>}
+              <FormInput label="Nom du bien *" value={form.nom} onChange={v => setForm(f => ({ ...f, nom: v }))} />
+              <FormInput label="Adresse *" value={form.adresse} onChange={v => setForm(f => ({ ...f, adresse: v }))} />
+              <FSelect label="Propriétaire *" value={form.proprietaire_id} onChange={v => setForm(f => ({ ...f, proprietaire_id: v }))}>
+                <option value="">Sélectionner...</option>
+                {proprietaires.map(p => <option key={p.id} value={p.id}>{p.prenom} {p.nom}</option>)}
+              </FSelect>
+              <FSelect label="Type" value={form.type} onChange={v => setForm(f => ({ ...f, type: v as BienType }))}>
                 <option value="appartement">Appartement</option>
                 <option value="villa">Villa</option>
                 <option value="maison">Maison</option>
-              </select>
+              </FSelect>
+              <div className="grid grid-cols-3 gap-3">
+                <FormInput label="Chambres" type="number" value={form.chambres} onChange={v => setForm(f => ({ ...f, chambres: v }))} />
+                <FormInput label="Capacité" type="number" value={form.capacite} onChange={v => setForm(f => ({ ...f, capacite: v }))} />
+                <FormInput label="Prix/nuit (€)" type="number" value={form.prix_nuit} onChange={v => setForm(f => ({ ...f, prix_nuit: v }))} />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setAddOpen(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium" style={{ background: 'rgba(45,41,38,0.06)', color: '#7A6E68' }}>Annuler</button>
+                <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white" style={{ background: saving ? '#A89E98' : '#5B8C6B' }}>
+                  {saving ? 'Enregistrement...' : 'Enregistrer'}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-stone-300 mb-1.5">Chambres</label>
-              <input type="number" name="chambres" value={form.chambres} onChange={handleChange} min={1}
-                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-stone-300 mb-1.5">Capacité</label>
-              <input type="number" name="capacite" value={form.capacite} onChange={handleChange} min={1}
-                className="w-full px-3 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-300 mb-1.5">Prix par nuit (€)</label>
-            <input type="number" name="prix_nuit" value={form.prix_nuit} onChange={handleChange} min={0} step={0.01}
-              className="w-full px-4 py-3 bg-stone-700 border border-stone-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-600" />
-          </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <div className="flex gap-3 pt-2">
-            <Button onClick={handleSave} disabled={saving} className="flex-1">
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
-            </Button>
-            <Button variant="secondary" onClick={() => setModalOpen(false)} className="flex-1">
-              Annuler
-            </Button>
           </div>
         </div>
-      </Modal>
+      )}
+    </div>
+  )
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-xs mb-0.5" style={{ color: '#A89E98' }}>{label}</div>
+      <div className="text-sm font-medium" style={{ color: '#2D2926' }}>{value}</div>
+    </div>
+  )
+}
+
+function FormInput({ label, value, onChange, type = 'text' }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: '#7A6E68' }}>{label}</label>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl text-sm focus:outline-none" style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.1)', color: '#2D2926' }} />
+    </div>
+  )
+}
+
+function FSelect({ label, value, onChange, children }: { label: string; value: string; onChange: (v: string) => void; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: '#7A6E68' }}>{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl text-sm focus:outline-none" style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.1)', color: '#2D2926' }}>
+        {children}
+      </select>
+    </div>
+  )
+}
+
+function ICalInput({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <label className="block text-xs mb-1" style={{ color: '#A89E98' }}>{label}</label>
+      <div className="px-3 py-2 rounded-lg text-xs" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)', color: value ? '#7A6E68' : '#C8B89A' }}>
+        {value || 'Non configuré'}
+      </div>
     </div>
   )
 }
