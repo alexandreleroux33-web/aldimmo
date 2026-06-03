@@ -30,7 +30,14 @@ export async function updateSession(request: NextRequest) {
 
   // Redirige vers /dashboard si connecté mais pas admin
   if (user && pathname.startsWith('/admin')) {
-    const isAdmin = user.user_metadata?.is_admin === true
+    // Vérifie dans user_metadata ET app_metadata (les deux peuvent porter is_admin
+    // selon la méthode utilisée pour l'attribuer). On accepte aussi la valeur string
+    // "true" car certaines versions de Supabase sérialisent les booléens en string.
+    const meta = user.user_metadata
+    const app = user.app_metadata
+    const isAdmin =
+      meta?.is_admin === true || meta?.is_admin === 'true' ||
+      app?.is_admin  === true || app?.is_admin  === 'true'
     if (!isAdmin) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
