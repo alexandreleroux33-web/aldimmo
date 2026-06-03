@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Bien, BienType, Proprietaire } from '@/lib/types'
 import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { adminInsert, adminSelect } from '@/lib/actions/admin'
 
 type EnrichedBien = Bien & { nb_res: number; revenus: number; taux_occupation: number; ical_airbnb_url?: string; ical_booking_url?: string }
@@ -186,11 +186,11 @@ export default function AdminBiensPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(b => (
-            <div
+            <NextLink
               key={b.id}
-              className="rounded-2xl p-5 cursor-pointer transition-all hover:shadow-md"
+              href={`/admin/biens/${b.id}`}
+              className="block rounded-2xl p-5 transition-all hover:shadow-md"
               style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}
-              onClick={() => openDetail(b)}
             >
               {/* Type badge + statut */}
               <div className="flex items-center justify-between mb-4">
@@ -269,7 +269,7 @@ export default function AdminBiensPage() {
                   iCal synchronisé
                 </div>
               )}
-            </div>
+            </NextLink>
           ))}
         </div>
       )}

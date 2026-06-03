@@ -7,6 +7,7 @@ import { ArrowLeft, Mail, Phone, MapPin, Building2, Euro, Calendar, Pencil, Tras
 import Badge from '@/components/ui/Badge'
 import Link from 'next/link'
 import { adminSelect, adminUpdate, adminDelete } from '@/lib/actions/admin'
+import { formatMontant } from '@/lib/utils'
 
 type EditForm = { nom: string; prenom: string; email: string; telephone: string; adresse: string }
 
@@ -32,8 +33,7 @@ export default function ProprietaireDetailPage() {
     const [props, bi, res] = await Promise.all([
       adminSelect<Proprietaire>('proprietaires', { eqCol: 'id', eqVal: id }),
       adminSelect<Bien>('biens', { eqCol: 'proprietaire_id', eqVal: id, order: 'created_at', orderAsc: true }),
-      adminSelect<Reservation & { biens?: { nom: string } }>('reservations', {
-        select: '*, biens(nom)',
+      adminSelect<Reservation>('reservations', {
         eqCol: 'proprietaire_id',
         eqVal: id,
         order: 'date_debut',
@@ -41,9 +41,11 @@ export default function ProprietaireDetailPage() {
       }),
     ])
     const p = props[0] ?? null
+    // Attach bien name to each reservation client-side
+    const enrichedRes = res.map(r => ({ ...r, _bienNom: bi.find(b => b.id === r.bien_id)?.nom ?? '—' }))
     setProp(p)
     setBiens(bi)
-    setRes(res)
+    setRes(enrichedRes as any)
     setLoading(false)
     if (p) setEditForm({ nom: p.nom, prenom: p.prenom, email: p.email, telephone: p.telephone ?? '', adresse: p.adresse ?? '' })
   }
@@ -261,11 +263,11 @@ export default function ProprietaireDetailPage() {
                     {reservations.map(r => (
                       <tr key={r.id}>
                         <td className="font-medium" style={{ color: '#2D2926' }}>{r.locataire_nom}</td>
-                        <td>{(r as any).biens?.nom ?? '—'}</td>
+                        <td>{(r as any)._bienNom}</td>
                         <td>{new Date(r.date_debut).toLocaleDateString('fr-FR')}</td>
                         <td>{new Date(r.date_fin).toLocaleDateString('fr-FR')}</td>
                         <td className="font-medium" style={{ color: '#3A5E46' }}>
-                          {Number(r.montant_total).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                          {formatMontant(Number(r.montant_total), r.plateforme)}
                         </td>
                         <td><Badge statut={r.statut} /></td>
                       </tr>
