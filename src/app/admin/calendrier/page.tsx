@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { Reservation, Bien } from '@/lib/types'
+import { useEffect, useState } from 'react'
+import { Reservation, Bien, Proprietaire } from '@/lib/types'
+import { adminSelect } from '@/lib/actions/admin'
 import { ChevronLeft, ChevronRight, X, User, Building2, Euro, Calendar } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 
@@ -55,14 +55,21 @@ export default function CalendrierPage() {
   const [selected, setSelected] = useState<Reservation | null>(null)
 
   useEffect(() => {
+    const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [])
     const load = async () => {
-      const supabase = createClient()
-      const [{ data: res }, { data: bi }] = await Promise.all([
-        supabase.from('reservations').select('*, biens(nom), proprietaires(nom, prenom)').neq('statut', 'annule'),
-        supabase.from('biens').select('id, nom, proprietaire_id, adresse, type, chambres, capacite, prix_nuit, statut, created_at').order('created_at'),
+      const [res, bi, props] = await Promise.all([
+        safe(adminSelect<Reservation>('reservations', { order: 'date_debut', orderAsc: true })),
+        safe(adminSelect<Bien>('biens', { order: 'created_at', orderAsc: true })),
+        safe(adminSelect<Proprietaire>('proprietaires')),
       ])
-      setReservations(res || [])
-      setBiens(bi || [])
+      // Filter cancelled, then attach bien/proprietaire names for the modal
+      const active = res.filter(r => r.statut !== 'annule').map(r => {
+        const bien = bi.find(b => b.id === r.bien_id)
+        const prop = props.find(p => p.id === r.proprietaire_id)
+        return { ...r, _bien: bien, _prop: prop }
+      })
+      setReservations(active as any)
+      setBiens(bi)
       setLoading(false)
     }
     load()
@@ -198,7 +205,7 @@ export default function CalendrierPage() {
                             background: isStart ? c.bg : c.light,
                             color: isStart ? 'white' : c.bg,
                           }}
-                          title={`${r.locataire_nom} — ${(r as any).biens?.nom}`}
+                          title={`${r.locataire_nom} — ${(r as any)._bien?.nom ?? ''}`}
                         >
                           {isStart ? r.locataire_nom : '·'}
                         </button>
@@ -255,13 +262,13 @@ export default function CalendrierPage() {
               <InfoRow
                 icon={<Building2 className="w-4 h-4" />}
                 label="Bien"
-                value={(selected as any).biens?.nom ?? '—'}
+                value={(selected as any)._bien?.nom ?? '—'}
               />
-              {(selected as any).proprietaires && (
+              {(selected as any)._prop && (
                 <InfoRow
                   icon={<User className="w-4 h-4" />}
                   label="Propriétaire"
-                  value={`${(selected as any).proprietaires.prenom} ${(selected as any).proprietaires.nom}`}
+                  value={`${(selected as any)._prop.prenom} ${(selected as any)._prop.nom}`}
                 />
               )}
               <InfoRow
