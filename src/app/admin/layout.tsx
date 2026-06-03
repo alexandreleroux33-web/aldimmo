@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -8,21 +8,20 @@ import {
   LogOut, Menu, X, LayoutDashboard, ShieldCheck,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { adminSelect } from '@/lib/actions/admin'
 import clsx from 'clsx'
-
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/calendrier', label: 'Calendrier', icon: CalendarDays },
-  { href: '/admin/proprietaires', label: 'Propriétaires', icon: Users },
-  { href: '/admin/biens', label: 'Biens', icon: Building2 },
-  { href: '/admin/reservations', label: 'Réservations', icon: CalendarDays },
-  { href: '/admin/revenus', label: 'Revenus', icon: Euro },
-]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [archivedCount, setArchivedCount] = useState(0)
+
+  useEffect(() => {
+    adminSelect<{ actif: boolean | null }>('proprietaires', { select: 'actif' })
+      .then(rows => setArchivedCount(rows.filter(r => r.actif === false).length))
+      .catch(() => {})
+  }, [])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -56,8 +55,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const active = isActive(item.href, item.exact)
+        {[
+          { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+          { href: '/admin/calendrier', label: 'Calendrier', icon: CalendarDays },
+          { href: '/admin/proprietaires', label: 'Propriétaires', icon: Users },
+          { href: '/admin/biens', label: 'Biens', icon: Building2 },
+          { href: '/admin/reservations', label: 'Réservations', icon: CalendarDays },
+          { href: '/admin/revenus', label: 'Revenus', icon: Euro },
+        ].map((item) => {
+          const active = isActive(item.href, (item as any).exact)
+          const badge = item.href === '/admin/proprietaires' && archivedCount > 0 ? archivedCount : null
           return (
             <Link
               key={item.href}
@@ -72,7 +79,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
             >
               <item.icon className="w-4 h-4 flex-shrink-0" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {badge !== null && (
+                <span
+                  className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
+                  style={active
+                    ? { background: 'rgba(255,255,255,0.25)', color: 'white' }
+                    : { background: 'rgba(234,179,8,0.15)', color: '#92680a' }
+                  }
+                >
+                  {badge}
+                </span>
+              )}
             </Link>
           )
         })}
