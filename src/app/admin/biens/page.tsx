@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Bien, BienType, Proprietaire } from '@/lib/types'
-import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon } from 'lucide-react'
+import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { adminInsert } from '@/lib/actions/admin'
 
@@ -21,7 +21,10 @@ export default function AdminBiensPage() {
   const [loading, setLoading] = useState(true)
   const [filterProp, setFilterProp] = useState('all')
   const [addOpen, setAddOpen] = useState(false)
-  const [selected, setSelected] = useState<EnrichedBien | null>(null)
+  const [selected, setSelected]     = useState<EnrichedBien | null>(null)
+  const [icalUrls, setIcalUrls]     = useState<{ airbnb: string; booking: string }>({ airbnb: '', booking: '' })
+  const [syncing, setSyncing]       = useState<'airbnb' | 'booking' | null>(null)
+  const [syncResult, setSyncResult] = useState<{ ok: boolean; msg: string } | null>(null)
   const [form, setForm] = useState({
     nom: '', adresse: '', type: 'appartement' as BienType,
     chambres: '1', capacite: '2', prix_nuit: '0', proprietaire_id: '',
@@ -83,6 +86,40 @@ export default function AdminBiensPage() {
     load()
   }
 
+  const openDetail = (b: EnrichedBien) => {
+    setSelected(b)
+    setIcalUrls({ airbnb: b.ical_airbnb_url || '', booking: b.ical_booking_url || '' })
+    setSyncResult(null)
+  }
+
+  const handleSync = async (plateforme: 'airbnb' | 'booking') => {
+    if (!selected) return
+    const url = plateforme === 'airbnb' ? icalUrls.airbnb : icalUrls.booking
+    if (!url.trim()) { setSyncResult({ ok: false, msg: 'URL iCal manquante' }); return }
+    setSyncing(plateforme)
+    setSyncResult(null)
+    try {
+      const res = await fetch('/api/sync-ical', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bien_id: selected.id,
+          proprietaire_id: selected.proprietaire_id,
+          ical_url: url.trim(),
+          plateforme,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error)
+      setSyncResult({ ok: true, msg: `${json.inserted} réservation${json.inserted > 1 ? 's' : ''} importée${json.inserted > 1 ? 's' : ''} · ${json.skipped} ignorée${json.skipped > 1 ? 's' : ''}` })
+      load()
+    } catch (err: any) {
+      setSyncResult({ ok: false, msg: err.message })
+    } finally {
+      setSyncing(null)
+    }
+  }
+
   const filtered = filterProp === 'all' ? biens : biens.filter(b => b.proprietaire_id === filterProp)
 
   return (
@@ -137,7 +174,7 @@ export default function AdminBiensPage() {
               key={b.id}
               className="rounded-2xl p-5 cursor-pointer transition-all hover:shadow-md"
               style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}
-              onClick={() => setSelected(b)}
+              onClick={() => openDetail(b)}
             >
               {/* Type badge + statut */}
               <div className="flex items-center justify-between mb-4">
@@ -251,16 +288,44 @@ export default function AdminBiensPage() {
                 </div>
               </div>
 
-              {/* iCal sync (future feature) */}
+              {/* iCal sync */}
               <div className="rounded-xl p-4" style={{ background: '#FAF8F5', border: '1px solid rgba(45,41,38,0.08)' }}>
                 <div className="flex items-center gap-2 mb-3">
                   <LinkIcon className="w-4 h-4" style={{ color: '#5B8C6B' }} />
                   <span className="text-sm font-medium" style={{ color: '#2D2926' }}>Synchronisation iCal</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full ml-auto" style={{ background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }}>Bientôt</span>
                 </div>
-                <div className="space-y-2">
-                  <ICalInput label="URL iCal Airbnb" value={selected.ical_airbnb_url || ''} />
-                  <ICalInput label="URL iCal Booking.com" value={selected.ical_booking_url || ''} />
+
+                {syncResult && (
+                  <div
+                    className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg mb-3"
+                    style={syncResult.ok
+                      ? { background: 'rgba(91,140,107,0.1)', color: '#3A5E46' }
+                      : { background: 'rgba(185,28,28,0.08)', color: '#b91c1c' }
+                    }
+                  >
+                    {syncResult.ok
+                      ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      : <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    }
+                    {syncResult.msg}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <ICalSyncRow
+                    label="Airbnb"
+                    value={icalUrls.airbnb}
+                    onChange={v => setIcalUrls(u => ({ ...u, airbnb: v }))}
+                    loading={syncing === 'airbnb'}
+                    onSync={() => handleSync('airbnb')}
+                  />
+                  <ICalSyncRow
+                    label="Booking.com"
+                    value={icalUrls.booking}
+                    onChange={v => setIcalUrls(u => ({ ...u, booking: v }))}
+                    loading={syncing === 'booking'}
+                    onSync={() => handleSync('booking')}
+                  />
                 </div>
               </div>
             </div>
@@ -338,12 +403,29 @@ function FSelect({ label, value, onChange, children }: { label: string; value: s
   )
 }
 
-function ICalInput({ label, value }: { label: string; value: string }) {
+function ICalSyncRow({ label, value, onChange, loading, onSync }: {
+  label: string; value: string; onChange: (v: string) => void; loading: boolean; onSync: () => void
+}) {
   return (
     <div>
-      <label className="block text-xs mb-1" style={{ color: '#A89E98' }}>{label}</label>
-      <div className="px-3 py-2 rounded-lg text-xs" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)', color: value ? '#7A6E68' : '#C8B89A' }}>
-        {value || 'Non configuré'}
+      <label className="block text-xs font-medium mb-1.5" style={{ color: '#7A6E68' }}>URL iCal {label}</label>
+      <div className="flex gap-2">
+        <input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="https://www.airbnb.fr/calendar/ical/..."
+          className="flex-1 px-3 py-2 rounded-xl text-xs focus:outline-none min-w-0"
+          style={{ background: 'white', border: '1px solid rgba(45,41,38,0.1)', color: '#2D2926' }}
+        />
+        <button
+          onClick={onSync}
+          disabled={loading || !value.trim()}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-white flex-shrink-0 transition-all"
+          style={{ background: loading || !value.trim() ? '#A89E98' : '#5B8C6B' }}
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? 'Sync...' : 'Sync'}
+        </button>
       </div>
     </div>
   )
