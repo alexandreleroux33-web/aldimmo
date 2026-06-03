@@ -42,18 +42,19 @@ export default function AdminBiensPage() {
     const activeProps = props.filter(p => p.actif !== false)
 
     const now = new Date()
+    const in30 = new Date(now.getTime() + 30 * 86400000)
     const enriched = bi.map(b => {
       const owner = props.find(p => p.id === b.proprietaire_id)
-      const bRes = res.filter(r => r.bien_id === b.id)
+      const bRes = res.filter(r => r.bien_id === b.id && r.statut !== 'annule')
+      // Revenus: only count reservations with actual amount
       const revenus = bRes.reduce((s, r) => s + Number(r.montant_total), 0)
-      // Occupation: count unique booked days in last 30 days
+      // Occupation: count unique booked nights in the next 30 days
       const daysBooked = new Set<string>()
       bRes.forEach(r => {
         let cur = new Date(r.date_debut)
         const end = new Date(r.date_fin)
         while (cur < end) {
-          const diff = (now.getTime() - cur.getTime()) / 86400000
-          if (diff >= 0 && diff <= 30) daysBooked.add(cur.toISOString().slice(0, 10))
+          if (cur >= now && cur < in30) daysBooked.add(cur.toISOString().slice(0, 10))
           cur = new Date(cur.getTime() + 86400000)
         }
       })
@@ -222,7 +223,7 @@ export default function AdminBiensPage() {
               )}
 
               {/* Details grid */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className={`grid gap-2 mb-4 ${Number(b.prix_nuit) > 0 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
                   <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{b.chambres}</div>
                   <div className="text-xs" style={{ color: '#A89E98' }}>ch.</div>
@@ -231,10 +232,12 @@ export default function AdminBiensPage() {
                   <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{b.capacite}</div>
                   <div className="text-xs" style={{ color: '#A89E98' }}>pers.</div>
                 </div>
-                <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
-                  <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{Number(b.prix_nuit).toFixed(0)}€</div>
-                  <div className="text-xs" style={{ color: '#A89E98' }}>/nuit</div>
-                </div>
+                {Number(b.prix_nuit) > 0 && (
+                  <div className="text-center p-2 rounded-xl" style={{ background: '#FAF8F5' }}>
+                    <div className="text-xs font-bold" style={{ color: '#2D2926' }}>{Number(b.prix_nuit).toFixed(0)}€</div>
+                    <div className="text-xs" style={{ color: '#A89E98' }}>/nuit</div>
+                  </div>
+                )}
               </div>
 
               {/* Stats */}
@@ -245,13 +248,15 @@ export default function AdminBiensPage() {
                 </div>
                 <div>
                   <div className="text-xs" style={{ color: '#A89E98' }}>Revenus</div>
-                  <div className="text-sm font-semibold" style={{ color: '#3A5E46' }}>
-                    {b.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                  <div className="text-sm font-semibold" style={{ color: b.revenus > 0 ? '#3A5E46' : '#A89E98' }}>
+                    {b.revenus > 0
+                      ? b.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+                      : '—'}
                   </div>
                 </div>
                 <div className="ml-auto">
                   <div className="text-xs" style={{ color: '#A89E98' }}>Occ. 30j</div>
-                  <div className="text-sm font-semibold" style={{ color: b.taux_occupation > 60 ? '#3A5E46' : '#7A6E68' }}>
+                  <div className="text-sm font-semibold" style={{ color: b.taux_occupation >= 50 ? '#3A5E46' : b.taux_occupation >= 20 ? '#b45309' : '#7A6E68' }}>
                     {b.taux_occupation}%
                   </div>
                 </div>
