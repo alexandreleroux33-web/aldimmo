@@ -14,16 +14,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'nom, email et message requis' }, { status: 400 })
   }
 
-  const { error } = await supabaseAdmin.from('demandes').insert({
-    nom,
-    email,
-    telephone: telephone || null,
-    type: type || 'information',
-    message,
-    statut: 'nouveau',
-  })
+  // Build insert payload — omit columns that may not exist yet in older schema
+  const payload: Record<string, unknown> = { nom, email, message, statut: 'nouveau' }
+  if (telephone) payload.telephone = telephone
 
-  if (error) {
+  // Attempt full insert with type; fall back without it if the column is missing
+  const { error } = await supabaseAdmin.from('demandes').insert({ ...payload, type: type || 'information' })
+
+  if (error?.message?.includes("column") && error.message.includes("type")) {
+    const { error: err2 } = await supabaseAdmin.from('demandes').insert(payload)
+    if (err2) return NextResponse.json({ error: err2.message }, { status: 500 })
+  } else if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
