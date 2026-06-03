@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Bien, BienType, Reservation, Proprietaire } from '@/lib/types'
-import { ArrowLeft, Building2, Users, Euro, Calendar, Pencil, Trash2, X, AlertTriangle, RefreshCw, CheckCircle, AlertCircle, Link as LinkIcon } from 'lucide-react'
+import { ArrowLeft, Building2, Users, Euro, Calendar, Pencil, Trash2, X, AlertTriangle, RefreshCw, CheckCircle, AlertCircle, Link as LinkIcon, ExternalLink } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import Link from 'next/link'
 import { adminSelect, adminUpdate, adminDelete } from '@/lib/actions/admin'
@@ -11,7 +11,7 @@ import { formatMontant } from '@/lib/utils'
 
 const TYPE_LABELS: Record<BienType, string> = { appartement: 'Appartement', villa: 'Villa', maison: 'Maison' }
 
-type EditForm = { nom: string; adresse: string; type: BienType; chambres: string; capacite: string; prix_nuit: string; statut: 'actif' | 'inactif' }
+type EditForm = { nom: string; adresse: string; type: BienType; chambres: string; capacite: string; prix_nuit: string; statut: 'actif' | 'inactif'; airbnb_url: string; booking_url: string; site_url: string }
 
 export default function BienDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -22,7 +22,7 @@ export default function BienDetailPage() {
   const [reservations, setRes]        = useState<Reservation[]>([])
   const [loading, setLoading]         = useState(true)
   const [editing, setEditing]         = useState(false)
-  const [editForm, setEditForm]       = useState<EditForm>({ nom: '', adresse: '', type: 'appartement', chambres: '1', capacite: '2', prix_nuit: '0', statut: 'actif' })
+  const [editForm, setEditForm]       = useState<EditForm>({ nom: '', adresse: '', type: 'appartement', chambres: '1', capacite: '2', prix_nuit: '0', statut: 'actif', airbnb_url: '', booking_url: '', site_url: '' })
   const [saving, setSaving]           = useState(false)
   const [editError, setEditError]     = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -41,8 +41,8 @@ export default function BienDetailPage() {
     setBien(b)
     setRes(res)
     if (b) {
-      setEditForm({ nom: b.nom, adresse: b.adresse, type: b.type, chambres: String(b.chambres), capacite: String(b.capacite), prix_nuit: String(b.prix_nuit), statut: b.statut })
-      setIcalUrls({ airbnb: (b as any).ical_airbnb_url || '', booking: (b as any).ical_booking_url || '' })
+      setEditForm({ nom: b.nom, adresse: b.adresse, type: b.type, chambres: String(b.chambres), capacite: String(b.capacite), prix_nuit: String(b.prix_nuit), statut: b.statut, airbnb_url: b.airbnb_url || '', booking_url: b.booking_url || '', site_url: b.site_url || '' })
+      setIcalUrls({ airbnb: b.ical_airbnb_url || '', booking: b.ical_booking_url || '' })
       const props = await adminSelect<Proprietaire>('proprietaires', { eqCol: 'id', eqVal: b.proprietaire_id })
       setProp(props[0] ?? null)
     }
@@ -56,16 +56,16 @@ export default function BienDetailPage() {
     if (!editForm.nom || !editForm.adresse) { setEditError('Nom et adresse requis'); return }
     setSaving(true)
     try {
-      await adminUpdate('biens', id, {
-        nom: editForm.nom,
-        adresse: editForm.adresse,
-        type: editForm.type,
-        chambres: parseInt(editForm.chambres),
-        capacite: parseInt(editForm.capacite),
-        prix_nuit: parseFloat(editForm.prix_nuit) || 0,
-        statut: editForm.statut,
-      })
-      setBien(b => b ? { ...b, ...editForm, chambres: parseInt(editForm.chambres), capacite: parseInt(editForm.capacite), prix_nuit: parseFloat(editForm.prix_nuit) || 0 } : b)
+      const patch = {
+        nom: editForm.nom, adresse: editForm.adresse, type: editForm.type,
+        chambres: parseInt(editForm.chambres), capacite: parseInt(editForm.capacite),
+        prix_nuit: parseFloat(editForm.prix_nuit) || 0, statut: editForm.statut,
+        airbnb_url: editForm.airbnb_url || undefined,
+        booking_url: editForm.booking_url || undefined,
+        site_url: editForm.site_url || undefined,
+      }
+      await adminUpdate('biens', id, patch)
+      setBien(b => b ? { ...b, ...patch } : b)
       setEditing(false)
     } catch (err: any) {
       setEditError(err.message)
@@ -161,6 +161,34 @@ export default function BienDetailPage() {
             {Number(bien.prix_nuit) > 0 && <InfoRow label="Prix / nuit" value={Number(bien.prix_nuit).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} />}
           </div>
 
+          {/* Annonce links */}
+          {(bien.airbnb_url || bien.booking_url || bien.site_url) && (
+            <div className="rounded-2xl p-4 space-y-2" style={{ background: 'white', border: '1px solid rgba(45,41,38,0.08)' }}>
+              <h2 className="text-sm font-semibold mb-3" style={{ color: '#2D2926' }}>Annonces</h2>
+              {bien.airbnb_url && (
+                <a href={bien.airbnb_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                  style={{ background: 'rgba(255,90,31,0.08)', color: '#e8430a', border: '1px solid rgba(255,90,31,0.18)' }}>
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />Voir sur Airbnb
+                </a>
+              )}
+              {bien.booking_url && (
+                <a href={bien.booking_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                  style={{ background: 'rgba(3,69,167,0.08)', color: '#0344a7', border: '1px solid rgba(3,69,167,0.18)' }}>
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />Voir sur Booking.com
+                </a>
+              )}
+              {bien.site_url && (
+                <a href={bien.site_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                  style={{ background: 'rgba(91,140,107,0.08)', color: '#3A5E46', border: '1px solid rgba(91,140,107,0.2)' }}>
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />Voir sur le site direct
+                </a>
+              )}
+            </div>
+          )}
+
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-3">
             <KpiCard icon={<Calendar className="w-5 h-5" />} value={reservations.filter(r => r.statut !== 'annule').length} label="Réservations" />
@@ -255,6 +283,14 @@ export default function BienDetailPage() {
               <FI label="Chambres" type="number" value={editForm.chambres} onChange={v => setEditForm(f => ({ ...f, chambres: v }))} />
               <FI label="Capacité" type="number" value={editForm.capacite} onChange={v => setEditForm(f => ({ ...f, capacite: v }))} />
               <FI label="Prix/nuit (€)" type="number" value={editForm.prix_nuit} onChange={v => setEditForm(f => ({ ...f, prix_nuit: v }))} />
+            </div>
+            <div className="pt-1" style={{ borderTop: '1px solid rgba(45,41,38,0.07)' }}>
+              <p className="text-xs font-medium mb-3 mt-3" style={{ color: '#A89E98' }}>Liens annonces (optionnel)</p>
+              <div className="space-y-3">
+                <FI label="URL Airbnb" type="url" value={editForm.airbnb_url} onChange={v => setEditForm(f => ({ ...f, airbnb_url: v }))} />
+                <FI label="URL Booking.com" type="url" value={editForm.booking_url} onChange={v => setEditForm(f => ({ ...f, booking_url: v }))} />
+                <FI label="URL site direct" type="url" value={editForm.site_url} onChange={v => setEditForm(f => ({ ...f, site_url: v }))} />
+              </div>
             </div>
             <div className="flex gap-3 pt-2">
               <button onClick={() => setEditing(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium" style={{ background: 'rgba(45,41,38,0.06)', color: '#7A6E68' }}>Annuler</button>

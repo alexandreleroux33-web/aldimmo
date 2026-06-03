@@ -28,6 +28,7 @@ export default function AdminBiensPage() {
   const [form, setForm] = useState({
     nom: '', adresse: '', type: 'appartement' as BienType,
     chambres: '1', capacite: '2', prix_nuit: '0', proprietaire_id: '',
+    airbnb_url: '', booking_url: '', site_url: '',
   })
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
@@ -84,8 +85,11 @@ export default function AdminBiensPage() {
       await adminInsert('biens', {
         nom: form.nom, adresse: form.adresse, type: form.type,
         chambres: parseInt(form.chambres), capacite: parseInt(form.capacite),
-        prix_nuit: parseFloat(form.prix_nuit), proprietaire_id: form.proprietaire_id,
+        prix_nuit: parseFloat(form.prix_nuit) || 0, proprietaire_id: form.proprietaire_id,
         statut: 'actif',
+        airbnb_url: form.airbnb_url || null,
+        booking_url: form.booking_url || null,
+        site_url: form.site_url || null,
       })
     } catch (err: any) {
       setSaving(false)
@@ -381,6 +385,14 @@ export default function AdminBiensPage() {
                 <FormInput label="Chambres" type="number" value={form.chambres} onChange={v => setForm(f => ({ ...f, chambres: v }))} />
                 <FormInput label="Capacité" type="number" value={form.capacite} onChange={v => setForm(f => ({ ...f, capacite: v }))} />
                 <FormInput label="Prix/nuit (€)" type="number" value={form.prix_nuit} onChange={v => setForm(f => ({ ...f, prix_nuit: v }))} />
+              </div>
+              <div className="pt-1" style={{ borderTop: '1px solid rgba(45,41,38,0.07)' }}>
+                <p className="text-xs font-medium mb-3 mt-3" style={{ color: '#A89E98' }}>Liens annonces (optionnel)</p>
+                <div className="space-y-3">
+                  <FormInput label="URL Airbnb" type="url" value={form.airbnb_url} onChange={v => setForm(f => ({ ...f, airbnb_url: v }))} />
+                  <FormInput label="URL Booking.com" type="url" value={form.booking_url} onChange={v => setForm(f => ({ ...f, booking_url: v }))} />
+                  <FormInput label="URL site direct" type="url" value={form.site_url} onChange={v => setForm(f => ({ ...f, site_url: v }))} />
+                </div>
               </div>
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setAddOpen(false)} className="flex-1 py-2.5 rounded-xl text-sm font-medium" style={{ background: 'rgba(45,41,38,0.06)', color: '#7A6E68' }}>Annuler</button>

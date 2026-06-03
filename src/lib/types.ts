@@ -42,6 +42,11 @@ export interface Bien {
   statut: BienStatut
   created_at: string
   proprietaires?: Proprietaire
+  airbnb_url?: string
+  booking_url?: string
+  site_url?: string
+  ical_airbnb_url?: string
+  ical_booking_url?: string
 }
 
 export interface Reservation {
