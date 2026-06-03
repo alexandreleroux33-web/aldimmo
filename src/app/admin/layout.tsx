@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, Users, Building2, CalendarDays, Euro,
-  LogOut, Menu, X, LayoutDashboard, ShieldCheck,
+  LogOut, Menu, X, LayoutDashboard, ShieldCheck, Inbox,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { adminSelect } from '@/lib/actions/admin'
@@ -17,9 +17,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [archivedCount, setArchivedCount] = useState(0)
 
+  const [newDemandesCount, setNewDemandesCount] = useState(0)
+
   useEffect(() => {
     adminSelect<{ actif: boolean | null }>('proprietaires', { select: 'actif' })
       .then(rows => setArchivedCount(rows.filter(r => r.actif === false).length))
+      .catch(() => {})
+    adminSelect<{ statut: string }>('demandes', { select: 'statut' })
+      .then(rows => setNewDemandesCount(rows.filter(r => r.statut === 'nouveau').length))
       .catch(() => {})
   }, [])
 
@@ -58,13 +63,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {[
           { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
           { href: '/admin/calendrier', label: 'Calendrier', icon: CalendarDays },
+          { href: '/admin/demandes', label: 'Demandes', icon: Inbox },
           { href: '/admin/proprietaires', label: 'Propriétaires', icon: Users },
           { href: '/admin/biens', label: 'Biens', icon: Building2 },
           { href: '/admin/reservations', label: 'Réservations', icon: CalendarDays },
           { href: '/admin/revenus', label: 'Revenus', icon: Euro },
         ].map((item) => {
           const active = isActive(item.href, (item as any).exact)
-          const badge = item.href === '/admin/proprietaires' && archivedCount > 0 ? archivedCount : null
+          const badge =
+            item.href === '/admin/proprietaires' && archivedCount > 0 ? archivedCount :
+            item.href === '/admin/demandes' && newDemandesCount > 0 ? newDemandesCount :
+            null
           return (
             <Link
               key={item.href}
@@ -85,7 +94,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"
                   style={active
                     ? { background: 'rgba(255,255,255,0.25)', color: 'white' }
-                    : { background: 'rgba(234,179,8,0.15)', color: '#92680a' }
+                    : item.href === '/admin/demandes'
+                      ? { background: 'rgba(185,28,28,0.1)', color: '#b91c1c' }
+                      : { background: 'rgba(234,179,8,0.15)', color: '#92680a' }
                   }
                 >
                   {badge}

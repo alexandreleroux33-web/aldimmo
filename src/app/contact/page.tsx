@@ -25,9 +25,22 @@ export default function ContactPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    await new Promise((res) => setTimeout(res, 1000))
-    setLoading(false)
-    setSuccess(true)
+    try {
+      const res = await fetch('/api/demandes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        throw new Error(json.error ?? 'Erreur lors de l\'envoi')
+      }
+      setSuccess(true)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

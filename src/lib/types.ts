@@ -1,4 +1,17 @@
 export type ReservationStatut = 'en_attente' | 'confirme' | 'check_in' | 'check_out' | 'annule'
+export type DemandeStatut = 'nouveau' | 'en_cours' | 'converti' | 'refuse'
+export type DemandeType = 'information' | 'devis' | 'partenariat' | 'autre'
+
+export interface Demande {
+  id: string
+  nom: string
+  email: string
+  telephone?: string
+  type: DemandeType
+  message: string
+  statut: DemandeStatut
+  created_at: string
+}
 export type BienType = 'appartement' | 'villa' | 'maison'
 export type Plateforme = 'airbnb' | 'booking' | 'direct'
 export type DocumentType = 'bilan' | 'contrat' | 'facture'
