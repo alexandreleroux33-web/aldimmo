@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Reservation, ReservationStatut, Bien, Proprietaire, Plateforme } from '@/lib/types'
 import Badge from '@/components/ui/Badge'
 import { Plus, ChevronDown, X, Search, SlidersHorizontal } from 'lucide-react'
+import { adminInsert, adminUpdate } from '@/lib/actions/admin'
 
 const STATUTS: ReservationStatut[] = ['en_attente', 'confirme', 'check_in', 'check_out', 'annule']
 const STATUT_LABELS: Record<ReservationStatut, string> = {
@@ -68,8 +69,9 @@ export default function AdminReservationsPage() {
 
   const handleStatutChange = async (reservationId: string, newStatut: ReservationStatut) => {
     setUpdatingStatut(true)
-    const supabase = createClient()
-    await supabase.from('reservations').update({ statut: newStatut }).eq('id', reservationId)
+    try {
+      await adminUpdate('reservations', reservationId, { statut: newStatut })
+    } catch { /* silently ignore, UI will reflect actual state on next load */ }
     setUpdatingStatut(false)
     setReservations(prev => prev.map(r => r.id === reservationId ? { ...r, statut: newStatut } : r))
     if (selected?.id === reservationId) setSelected(prev => prev ? { ...prev, statut: newStatut } : null)
@@ -82,15 +84,19 @@ export default function AdminReservationsPage() {
       return
     }
     setSaving(true)
-    const supabase = createClient()
     const bien = biens.find(b => b.id === form.bien_id)
-    const { error } = await supabase.from('reservations').insert({
-      ...form,
-      proprietaire_id: form.proprietaire_id || bien?.proprietaire_id,
-      montant_total: parseFloat(form.montant_total),
-    })
+    try {
+      await adminInsert('reservations', {
+        ...form,
+        proprietaire_id: form.proprietaire_id || bien?.proprietaire_id,
+        montant_total: parseFloat(form.montant_total),
+      })
+    } catch (err: any) {
+      setSaving(false)
+      setFormError(err.message)
+      return
+    }
     setSaving(false)
-    if (error) { setFormError(error.message); return }
     setAddOpen(false)
     load()
   }

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Bien, BienType, Proprietaire } from '@/lib/types'
 import { Plus, Building2, Users, Euro, Home, X, Link as LinkIcon } from 'lucide-react'
 import Link from 'next/link'
+import { adminInsert } from '@/lib/actions/admin'
 
 type EnrichedBien = Bien & { nb_res: number; revenus: number; taux_occupation: number; ical_airbnb_url?: string; ical_booking_url?: string }
 
@@ -65,15 +66,19 @@ export default function AdminBiensPage() {
     setFormError('')
     if (!form.nom || !form.adresse || !form.proprietaire_id) { setFormError('Nom, adresse et propriétaire requis'); return }
     setSaving(true)
-    const supabase = createClient()
-    const { error } = await supabase.from('biens').insert({
-      nom: form.nom, adresse: form.adresse, type: form.type,
-      chambres: parseInt(form.chambres), capacite: parseInt(form.capacite),
-      prix_nuit: parseFloat(form.prix_nuit), proprietaire_id: form.proprietaire_id,
-      statut: 'actif',
-    })
+    try {
+      await adminInsert('biens', {
+        nom: form.nom, adresse: form.adresse, type: form.type,
+        chambres: parseInt(form.chambres), capacite: parseInt(form.capacite),
+        prix_nuit: parseFloat(form.prix_nuit), proprietaire_id: form.proprietaire_id,
+        statut: 'actif',
+      })
+    } catch (err: any) {
+      setSaving(false)
+      setFormError(err.message)
+      return
+    }
     setSaving(false)
-    if (error) { setFormError(error.message); return }
     setAddOpen(false)
     load()
   }

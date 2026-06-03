@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Proprietaire } from '@/lib/types'
 import { Plus, Phone, Mail, Building2, Euro, Search } from 'lucide-react'
 import Link from 'next/link'
+import { adminInsert } from '@/lib/actions/admin'
 
 type EnrichedProp = Proprietaire & { nb_biens: number; revenus: number }
 
@@ -39,10 +40,14 @@ export default function AdminProprietairesPage() {
     setError('')
     if (!form.nom || !form.prenom || !form.email) { setError('Nom, prénom et email requis'); return }
     setSaving(true)
-    const supabase = createClient()
-    const { error: err } = await supabase.from('proprietaires').insert(form)
+    try {
+      await adminInsert('proprietaires', form)
+    } catch (err: any) {
+      setSaving(false)
+      setError(err.message)
+      return
+    }
     setSaving(false)
-    if (err) { setError(err.message); return }
     setModalOpen(false)
     setForm({ nom: '', prenom: '', email: '', telephone: '', adresse: '' })
     load()
