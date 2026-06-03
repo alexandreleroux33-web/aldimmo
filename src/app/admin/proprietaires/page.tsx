@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Proprietaire } from '@/lib/types'
 import { Plus, Phone, Mail, Building2, Euro, Search } from 'lucide-react'
 import Link from 'next/link'
-import { adminInsert } from '@/lib/actions/admin'
+import { adminInsert, adminSelect } from '@/lib/actions/admin'
 
 type EnrichedProp = Proprietaire & { nb_biens: number; revenus: number }
 
@@ -19,15 +19,18 @@ export default function AdminProprietairesPage() {
   const [error, setError] = useState('')
 
   const load = async () => {
-    const supabase = createClient()
-    const { data: props } = await supabase.from('proprietaires').select('*').order('created_at', { ascending: false })
-    const { data: biens } = await supabase.from('biens').select('id, proprietaire_id')
-    const { data: res } = await supabase.from('reservations').select('proprietaire_id, montant_total').neq('statut', 'annule')
+    // adminSelect bypass le RLS — retourne tous les propriétaires sans restriction
+    const [props, biens, res] = await Promise.all([
+      adminSelect<Proprietaire>('proprietaires', { order: 'created_at', orderAsc: false }),
+      adminSelect<{ id: string; proprietaire_id: string }>('biens', { select: 'id,proprietaire_id' }),
+      adminSelect<{ proprietaire_id: string; montant_total: number; statut: string }>('reservations', { select: 'proprietaire_id,montant_total,statut' }),
+    ])
 
-    const enriched = (props || []).map(p => ({
+    const resNonAnnulees = res.filter(r => r.statut !== 'annule')
+    const enriched = props.map(p => ({
       ...p,
-      nb_biens: (biens || []).filter(b => b.proprietaire_id === p.id).length,
-      revenus: (res || []).filter(r => r.proprietaire_id === p.id).reduce((s, r) => s + Number(r.montant_total), 0),
+      nb_biens: biens.filter(b => b.proprietaire_id === p.id).length,
+      revenus: resNonAnnulees.filter(r => r.proprietaire_id === p.id).reduce((s, r) => s + Number(r.montant_total), 0),
     }))
 
     setProprietaires(enriched)
